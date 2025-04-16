@@ -52,6 +52,8 @@ export default function BettingPage() {
       window.location.href = upiUrl;
    
   };
+
+  
  /*  const handleFinalProceed = () => {
     console.log("razor pay",window.Razorpay)
     const options = {
