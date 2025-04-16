@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.custom_input_label{
+    position: absolute;
+      left: 11px;
+      top: -3px;
+      background: white;
+      padding: 0px 5px;
+     /*  transition: transform 0.3s ease, color 0.3s ease; */
+     color: #a3a9b2;
+    
+}
+ .relative:focus-within .custom_input_label{
+  color: #60a5fa;
+  
+}
+ 
