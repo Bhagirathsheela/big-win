@@ -14,20 +14,27 @@ export default function NumberBlocksGrid() {
     localStorage.setItem("selectedNumbers", JSON.stringify(selectedNumbers));
   }, [selectedNumbers]);
 
-  const playClickSound = () => {
-    const audio = new Audio("https://www.myinstants.com/media/sounds/mouse-click.mp3");
+  const playClickSound = (type) => {
+    const soundPath =
+      type === "select"
+        ? "/sounds/select-sound.mp3"
+        : "/sounds/unselect-sound.mp3";
+    const audio = new Audio(soundPath);
     audio.play();
   };
 
-  const toggleNumber = (num) => {
-    playClickSound();
-    setSelectedNumbers((prev) =>
-      prev.includes(num) ? prev.filter((n) => n !== num) : [...prev, num]
-    );
-  };
+   const toggleNumber = (num) => {
+     setSelectedNumbers((prev) => {
+       const isAlreadySelected = prev.includes(num);
+       playClickSound(isAlreadySelected ? "unselect" : "select");
+       return isAlreadySelected
+         ? prev.filter((n) => n !== num)
+         : [...prev, num];
+     });
+   };
 
   const resetSelection = () => {
-    playClickSound();
+    playClickSound("unselect");
     setSelectedNumbers([]);
   };
 
