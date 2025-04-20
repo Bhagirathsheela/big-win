@@ -1,8 +1,9 @@
 // src/components/SignupForm.jsx
-import React, { useState } from "react";
+import React, { useState,useContext } from "react";
 import { useForm } from "react-hook-form";
 import { useHttpClient } from "../common/hooks/http-hook";
-
+import { useNotification } from "../common/context/NotificationContext";
+import { AuthContext } from "../common/context/auth-context";
 
 const SignupForm = ({ setShowLogin }) => {
   const {sendRequest } = useHttpClient();
@@ -11,13 +12,12 @@ const SignupForm = ({ setShowLogin }) => {
     handleSubmit,
     formState: { errors },
   } = useForm();
-  //const [isLoading, setIsLoading] = useState(false),
-  //[error, setError] = useState()
-
+  const { showSuccess } = useNotification();
+  const auth = useContext(AuthContext);
   const onSubmit = async (data) => {
     //console.log("Form data:", data);
     try {
-      await sendRequest("http://localhost:5000/api/users/signup","POST",
+      const responseData=await sendRequest("http://localhost:5000/api/users/signup","POST",
         JSON.stringify({
             name: data.username,
             email: data.email,
@@ -27,6 +27,11 @@ const SignupForm = ({ setShowLogin }) => {
             "Content-Type": "application/json"
         }
       );
+      if(responseData){
+        showSuccess("Signed up successfully, please login using credentials")
+        //auth.login(responseData.user);
+        setShowLogin(true)
+      }
     } catch (err) {}
   };
   return (

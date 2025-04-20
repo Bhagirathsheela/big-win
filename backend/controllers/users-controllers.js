@@ -48,7 +48,8 @@ const signup = async (req, res, next) => {
     email,
     password,
     image:"abc",
-    places:[]
+    places:[],
+    bets:[]
   });
 
 

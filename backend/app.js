@@ -4,8 +4,10 @@ const bodyParser = require("body-parser");
 
 const usersRoutes = require("./routes/users-routes");
 const placesRoutes = require("./routes/places-routes");
+const betsRoutes = require("./routes/bets-routes");
 const HttpError= require("../backend/models/http-error");
 const { default: mongoose } = require("mongoose");
+require('./scheduler');
 
 const app = express();
  
@@ -20,6 +22,7 @@ app.use((req, res, next)=>{
 
 app.use("/api/places", placesRoutes);
 app.use("/api/users", usersRoutes);
+app.use("/api/bets", betsRoutes);
 
 app.use((req, res, next) => {
   const error = new HttpError("Could not find this route.", 404);

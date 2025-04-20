@@ -4,7 +4,6 @@ const HttpError = require('../models/http-error');
 
 const Place=require('../models/place')
 const User=require("../models/users")
-
 /* let DUMMY_PLACES = [
   {
     id: 'p1',
@@ -164,6 +163,48 @@ const deletePlace = async (req, res, next) => {
   }
   res.status(200).json({ message: 'Deleted place.' });
 };
+//place Bet
+const createBetByUserId = async (req, res, next) => {
+  const { title, description,location, address, creator } = req.body;
+  // const title = req.body.title;
+  const createdPlace = new Place({
+    bet,
+    creator
+  });
+
+  let user;
+  try {
+    user=await User.findById(creator)
+  } catch (err) {
+    const error = new HttpError("Creating bet failed",500);
+    return next(err); 
+  }
+  
+  if(!user){
+    const error = new HttpError("Couldn't find user for provided id",404);
+    return next(error); 
+  }
+
+  try {
+    //await createdPlace.save();
+    const sess= await mongoose.startSession();
+    sess.startTransaction();
+    await createdPlace.save({session:sess});
+    // here push is not js push, it's mongoose push method which kind of allow mongoose to make a relation between 2 models (between user and places).
+    //here mongoose grabs the created place id and add it to the places field of user
+    user.places.push(createdPlace);
+    await user.save({session:sess});
+    await sess.commitTransaction(); 
+
+
+  } catch (err) {
+    const error = new HttpError("Creating places failed",500);
+    return next(err);
+  }
+   
+  res.status(201).json({ place: createdPlace });
+};
+
 
 exports.getPlaceById = getPlaceById;
 exports.getPlacesByUserId = getPlacesByUserId;

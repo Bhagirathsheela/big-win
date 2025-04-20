@@ -60,11 +60,13 @@ const NavBar = () => {
           <div className="flex items-center space-x-8">
             {/* Logo */}
             <div className="flex-shrink-0">
+              <Link to="/" >
               <img
                 className="h-8 w-8"
-                src="https://via.placeholder.com/40"
+                src="./logo.png"
                 alt="Logo"
               />
+              </Link>
             </div>
 
             {/* Navigation Links (Desktop View) */}

@@ -21,8 +21,8 @@ export default function PaymentSummary() {
         <h3 className="text-lg font-semibold text-indigo-700 mb-2">Your Bets:</h3>
         <ul className="space-y-1 text-gray-800">
           {bets.map((bet) => (
-            <li key={bet.number} className="flex justify-between">
-              <span>Number {bet.number}</span>
+            <li key={bet.selectedNumber} className="flex justify-between">
+              <span>Number {bet.selectedNumber}</span>
               <span>₹{bet.amount}</span>
             </li>
           ))}

@@ -1,16 +1,19 @@
 // BettingPage.js
-import { useState, useEffect } from "react";
+import { useState, useEffect,useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../common/context/auth-context";
+import { useHttpClient } from "../common/hooks/http-hook";
 
 export default function BettingPage() {
   const [bets, setBets] = useState([]);
-
+   const auth = useContext(AuthContext);
   const navigate = useNavigate();
+  const {sendRequest } = useHttpClient();
 
   useEffect(() => {
     const stored = localStorage.getItem("selectedNumbers");
     const selected = stored ? JSON.parse(stored) : [];
-    setBets(selected.map((num) => ({ number: num, amount: 50 })));
+    setBets(selected.map((num) => ({ selectedNumber: num, amount: 50 })));
   }, []);
 
   const handleAmountChange = (index, newAmount) => {
@@ -32,28 +35,42 @@ export default function BettingPage() {
   };
 
   const handleRemove = (numberToRemove) => {
-    const updated = bets.filter((bet) => bet.number !== numberToRemove);
+    const updated = bets.filter((bet) => bet.selectedNumber !== numberToRemove);
     setBets(updated);
     localStorage.setItem(
       "selectedNumbers",
-      JSON.stringify(updated.map((bet) => bet.number))
+      JSON.stringify(updated.map((bet) => bet.selectedNumber))
     );
   };
 
   const totalAmount = bets.reduce((sum, bet) => sum + bet.amount, 0);
 
-   const handleFinalProceed = () => {
+   const handleFinalProceed = async () => {
     console.log(bets)
-    const totalAmount=bets.map((val)=>{ return val.amount}).reduce((acc, current) => acc + current, 0);
-    console.log("Total amount",totalAmount)
+   // const totalAmount=bets.map((val)=>{ return val.amount}).reduce((acc, current) => acc + current, 0);
+   // console.log("Total amount",totalAmount)
     //alert("Bet placed! If your number wins, you get 9x the amount.");
     //pay?pa={UPI_ID}&pn={Name}&mc=&tid={TxnID}&tr={TxnRef}&tn={Note}&am={Amount}&cu=INR
-    const upiUrl = `upi://pay?pa=bhagirathsheela001@ybl&pn=Bhagirath&am=${totalAmount}&tn=Thanks+for+your+purchase&cu=INR`;
-      window.location.href = upiUrl;
-   
-  };
-
+   // const upiUrl = `upi://pay?pa=receiver@upi&pn=ReceiverName&am=100&tn=Thanks+for+your+purchase&cu=INR`;
+     // window.location.href = upiUrl;
+     console.log(auth)
+     try {
+     const responseData= await sendRequest("http://localhost:5000/api/bets","POST",
+        JSON.stringify({
+          selectedBet: bets,
+          creator: auth.userInfo.id,
+          }),
+        {
+            "Content-Type": "application/json"
+        }
+      );
+      if(responseData){
+        navigate("/summary", { state: { bets, totalAmount, paymentId: "74ASDF-BHGAI-234W"} });
+        localStorage.removeItem("selectedNumbers");
+      }
+    } catch (err) {} 
   
+  };
  /*  const handleFinalProceed = () => {
     console.log("razor pay",window.Razorpay)
     const options = {
@@ -97,10 +114,10 @@ export default function BettingPage() {
       <div className="w-full max-w-xl space-y-4">
         {bets.map((bet, index) => (
           <div
-            key={bet.number}
+            key={bet.selectedNumber}
             className="flex items-center justify-between bg-white p-4 rounded-lg shadow"
           >
-            <div className="font-medium text-lg text-indigo-700">#{bet.number}</div>
+            <div className="font-medium text-lg text-indigo-700">#{bet.selectedNumber}</div>
 
             <div className="flex items-center gap-2">
               <button
@@ -124,7 +141,7 @@ export default function BettingPage() {
             </div>
 
             <button
-              onClick={() => handleRemove(bet.number)}
+              onClick={() => handleRemove(bet.selectedNumber)}
               className="ml-4 text-red-500 hover:text-red-700 font-bold text-lg"
               title="Remove"
             >
