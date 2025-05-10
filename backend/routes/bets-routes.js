@@ -1,9 +1,9 @@
 const express =require("express");
 
 const betsController = require("../controllers/bets-controllers");
-
+const checkAuth = require("../middleware/check-auth")
 const router=express.Router();
-
+router.use(checkAuth);
 router.post("/", betsController.createBetByUserId);
 /* router.get("/:pid", placesController.getPlaceById);
 router.get("/user/:uid", placesController.getPlacesByUserId);

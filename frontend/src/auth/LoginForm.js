@@ -24,8 +24,8 @@ const LoginForm = () => {
           { "Content-Type": "application/json" }
         );
         if(responseData){
-          auth.login(responseData.user);
-          console.log("user Logged in", responseData);
+          auth.login(responseData,responseData.token);
+          //console.log("user Logged in", responseData);
         }
       } catch (err) {}
     };

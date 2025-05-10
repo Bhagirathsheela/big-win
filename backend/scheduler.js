@@ -1,31 +1,34 @@
 // scheduler.js
 const cron = require("node-cron");
+const nodemailer = require("nodemailer");
 const mongoose = require("mongoose");
-const Bet=require('./models/bets') // Replace with your actual model path
-const Result = require("./models/result"); // Model to store daily winner
+const Bet = require('./models/bet');
+const Result = require("./models/result");
+const User = require("./models/user");
 
-// Connect to MongoDB if not already connected
-/* mongoose.connect("mongodb://localhost:27017/your-db-name", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}); */
-
-// Function to run daily at 49 15 * * * PM IST
+// DAILY @ 4:49 PM IST
 cron.schedule("* * * * *", async () => {
-  console.log(`Running daily lottery at gievn ${Date.now()} IST Time`);
+  console.log(`📅 Running daily lottery at ${new Date().toLocaleString("en-IN",{timeZone: "Asia/Kolkata" })}`);
   await runDailyLottery();
 }, {
   scheduled: true,
   timezone: "Asia/Kolkata"
 });
 
-
+// Reuse transporter
+const transporter = nodemailer.createTransport({
+  service: "Gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+  tls: {
+    rejectUnauthorized: false, // Add this line to bypass certificate errors
+  },
+});
 
 async function runDailyLottery() {
-  
   const allBets = await Bet.find();
-
-  // Flatten all bets into a single array of { number, amount }
   const flatBets = allBets.flatMap(bet =>
     bet.selectedBet.map(entry => ({
       userId: bet.creator,
@@ -34,29 +37,23 @@ async function runDailyLottery() {
     }))
   );
 
-  // Calculate total pool amount
   const totalPool = flatBets.reduce((acc, entry) => acc + entry.amount, 0);
-
-  // Try to find a winner number such that (amount * 9 <= totalPool)
   const possibleWinners = flatBets.filter(entry => entry.amount * 9 <= totalPool);
 
   let winnerEntry;
+
   if (possibleWinners.length > 0) {
-    // Pick a random valid winner
     const randomIndex = Math.floor(Math.random() * possibleWinners.length);
     winnerEntry = possibleWinners[randomIndex];
   } else {
-    // No valid winner found, pick a number not bet by any user
     const allNumbers = Array.from({ length: 99 }, (_, i) => i + 1);
     const numbersBet = flatBets.map(b => b.number);
     const unbetNumbers = allNumbers.filter(n => !numbersBet.includes(n));
-
     const randomIndex = Math.floor(Math.random() * unbetNumbers.length);
     const fallbackWinner = unbetNumbers[randomIndex];
 
-    // Save result with no winner
     await Result.create({
-      date: Date.now(),
+      date:new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }),
       winnerNumber: fallbackWinner,
       amount: 0,
       creator: null
@@ -66,81 +63,78 @@ async function runDailyLottery() {
     return;
   }
 
-  // Save the result for the winning user
   const winningAmount = winnerEntry.amount * 9;
+  const user = await User.findById(winnerEntry.userId).select("name email");
+
+  if (!user) {
+    console.warn("⚠️ Winner user not found.");
+    return;
+  }
 
   await Result.create({
-    date: Date.now(),
+    /* date: new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }), */
+    date: new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }),
     winnerNumber: winnerEntry.number,
     amount: winningAmount,
     creator: winnerEntry.userId
   });
 
-  console.log(`🏆 Winner: User ${winnerEntry.userId} won ₹${winningAmount} on number ${winnerEntry.number}`);
+  console.log(`🏆 Winner: ${user.name} (${user.email}) won ₹${winningAmount} on number ${winnerEntry.number}`);
+
+  //await sendWinnerEmail(user, winnerEntry, winningAmount);
+  //sendWinnerEmail({ name: "Dummy User ", email: "bhagirathsheela@gmail.com" },{ number: 7 },2500);
 }
 
-
-/* async function runDailyLottery() {
-  try {
-    const allBets = await Bet.find(); // get all user bets
-    let winnerUserId = null;
-
-    const betMap = new Map();
-    let totalAmount = 0;
-
-    allBets.forEach((bet) => {
-      bet.selectedBet.forEach(({ selectedNumber, amount }) => {
-        totalAmount += amount;
-        if (betMap.has(selectedNumber)) {
-          betMap.set(selectedNumber, betMap.get(selectedNumber) + amount);
-        } else {
-          betMap.set(selectedNumber, amount);
-        }
+async function sendWinnerEmail(user, winnerEntry, winningAmount) {
+    try {
+      await transporter.sendMail({
+        from: '"Big Win Lottery 🎰" <test@gmail.com>',
+        to: user.email,
+        subject: `🎉 Jackpot Alert! ${user.name}, You Just Won ₹${winningAmount}! 🤑`,
+        html: `
+          <div style="font-family: Arial, sans-serif; background: #f9f9f9; padding: 30px; border-radius: 10px; color: #333;">
+            <h1 style="color: #4CAF50;">🎊 Congratulations, ${user.name}! 🎊</h1>
+            <p style="font-size: 18px;">Your lucky number <strong style="color: #007bff;">${winnerEntry.number}</strong> just hit the jackpot!</p>
+            <p style="font-size: 20px;"><strong>💰 You’ve won ₹${winningAmount}!</strong></p>
+            <hr style="margin: 20px 0;" />
+            <p style="font-size: 16px;">Thank you for playing <strong>Big Win Lottery</strong>. We love having you in the game!</p>
+            <p style="font-size: 16px;">Stay tuned for more chances to win big. 🍀</p>
+            <br />
+            <a href="https://your-lottery-site.com" style="display: inline-block; padding: 12px 20px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+              🔁 Play Again
+            </a>
+            <br /><br />
+            <small style="color: #777;">This is an automated message. Please do not reply.</small>
+          </div>
+        `,
       });
+      console.log("✅ Email sent to:", user.email);
+    } catch (error) {
+      console.error("❌ Failed to send email:", error);
+    }
+  }
+  
+/* async function sendWinnerEmail(user, winnerEntry, winningAmount) {
+  try {
+    await transporter.sendMail({
+      from: '"Big Win Lottery" <test@gmail.com>',
+      to: user.email,
+      subject: "🎉 You Won the Lottery!",
+      html: `
+        <h2>Hey ${user.name},</h2>
+        <p>Congratulations! 🎊</p>
+        <p>Your number <strong>${winnerEntry.number}</strong> has won <strong>₹${winningAmount}</strong>.</p>
+        <p>Thank you for playing Big Win!</p>
+        <br />
+        <small>This is an automated message. Please do not reply.</small>
+      `,
     });
-
-    let winner = null;
- 
-    for (let i = 1; i <= 99; i++) {
-      const betAmount = betMap.get(i) || 0;
-      if (betAmount * 9 <= totalAmount && betAmount > 0) {
-        winner = i;
-        break;
-      }
-    }
-
-    if (!winner) {
-      const numbersWithNoBets = [];
-      for (let i = 1; i <= 99; i++) {
-        if (!betMap.has(i)) numbersWithNoBets.push(i);
-      }
-      if (numbersWithNoBets.length > 0) {
-        const randomIndex = Math.floor(Math.random() * numbersWithNoBets.length);
-        winner = numbersWithNoBets[randomIndex];
-      } else {
-        console.warn("All numbers have bets. Cannot pick safe random number.");
-        winner = Math.floor(Math.random() * 99) + 1;
-      }
-    }
-   
-    for (const bet of allBets) {
-        const match = bet.selectedBet.find(b => b.selectedNumber === winner);
-        if (match) {
-          winnerUserId = bet.creator; // found the user who placed a winning bet
-          break;
-        }
-      } 
-     await Result.create({
-      date: new Date(),
-      winnerNumber: winner,
-      totalAmount,
-      creator:winnerUserId || undefined
-    }); 
-
-    console.log("Winner decided:", "Number:",winner,"Amount:",totalAmount,"UserId",winnerUserId);
-  } catch (err) {
-    console.error("Error running daily lottery:", err);
+    console.log("✅ Email sent to:", user.email);
+  } catch (error) {
+    console.error("❌ Failed to send email:", error);
   }
 } */
+
+
 
 module.exports = {}; // Optional, depending on how you load this

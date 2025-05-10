@@ -23,15 +23,19 @@ export default function NumberBlocksGrid() {
     audio.play();
   };
 
-   const toggleNumber = (num) => {
-     setSelectedNumbers((prev) => {
-       const isAlreadySelected = prev.includes(num);
-       playClickSound(isAlreadySelected ? "unselect" : "select");
-       return isAlreadySelected
-         ? prev.filter((n) => n !== num)
-         : [...prev, num];
-     });
-   };
+  const toggleNumber = (num) => {
+    setSelectedNumbers((prev) => {
+      const isAlreadySelected = prev.includes(num);
+      playClickSound(isAlreadySelected ? "unselect" : "select");
+      return isAlreadySelected ? prev.filter((n) => n !== num) : [...prev, num];
+    });
+  };
+  /* const toggleNumber = (num) => {
+    playClickSound();
+    setSelectedNumbers((prev) =>
+      prev.includes(num) ? prev.filter((n) => n !== num) : [...prev, num]
+    );
+  }; */
 
   const resetSelection = () => {
     playClickSound("unselect");
@@ -48,7 +52,7 @@ export default function NumberBlocksGrid() {
 
   return (
     <div className="min-h-screen p-4 bg-gradient-to-br from-gray-50 to-gray-200 flex flex-col items-center">
-      <h1 className="text-3xl font-bold mb-6 text-indigo-800">Select Numbers</h1>
+      <h1 className="text-3xl font-bold mb-6 text-indigo-800">Select your Lucky Numbers</h1>
 
       <div className="flex gap-4 mb-4">
         <button

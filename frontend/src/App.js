@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import { NotificationProvider } from "./common/context/NotificationContext";
@@ -17,18 +17,33 @@ import BettingPage from "./pages/BettingPage";
 import PaymentSummary from "./pages/PaymentSummary";
 
 const App = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const login =useCallback((user)=>{
-    setIsLoggedIn(true)
-    setUserInfo(user)
+  const [token, setToken] = useState(false);
+  const login =useCallback((user,token)=>{
+    setToken(token);
+    setUserInfo(user);
+    localStorage.setItem('userData',JSON.stringify({user: user,token: token /* expiration: tokenExpirationDate.toISOString() */}));
   },[])
   const logout = useCallback(()=>{
-    setIsLoggedIn(false)
+    setToken(null);
     setUserInfo(null);
+    localStorage.removeItem("userData");
   },[])
   const [userInfo, setUserInfo] = useState(null)
   let routes;
 
+  useEffect(() => {
+     const storedData = JSON.parse(localStorage.getItem("userData"));
+     if (
+       storedData &&
+       storedData.token 
+     ) {
+       login(
+         storedData.user,
+         storedData.token,
+       );
+     }
+  }, [])
+  
   /* if(isLoggedIn){
   routes = (
     <>
@@ -48,7 +63,7 @@ const App = () => {
      </>
    );
   } */
- const AppRoutes = ({ isLoggedIn }) => {
+ const AppRoutes = ({ token }) => {
    return (
      <Routes>
        <Route path="/" element={<Home />} />
@@ -57,7 +72,7 @@ const App = () => {
        <Route path="/bet" element={<BettingPage />} />
        <Route path="/summary" element={<PaymentSummary />} />
 
-       {isLoggedIn ? (
+       {token ? (
          <>
            <Route path="/profile" element={<Profile />} />
            <Route path="*" element={<Navigate to="/" replace />} />
@@ -77,14 +92,14 @@ const App = () => {
         <ToastContainer />
         <Loader />
         <AuthContext.Provider
-          value={{ isLoggedIn: isLoggedIn,userInfo:userInfo, login: login, logout: logout }}
+          value={{ isLoggedIn: !!token,token:token,userInfo:userInfo, login: login, logout: logout }}
         >
           <Router>
             <div className="flex flex-col min-h-screen">
               <Header />
               <div className="flex-grow bg-gray-100">
                 {/* <Routes>{routes}</Routes> */}
-                <AppRoutes isLoggedIn={isLoggedIn} />
+                <AppRoutes token={token} />
               </div>
               <Footer />
             </div>

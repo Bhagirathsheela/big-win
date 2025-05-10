@@ -3,7 +3,7 @@ const { default: mongoose } = require('mongoose');
 const HttpError = require('../models/http-error');
 
 const Place=require('../models/place')
-const User=require("../models/users")
+const User=require("../models/user")
 /* let DUMMY_PLACES = [
   {
     id: 'p1',

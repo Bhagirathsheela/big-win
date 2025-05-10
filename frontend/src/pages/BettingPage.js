@@ -58,10 +58,12 @@ export default function BettingPage() {
      const responseData= await sendRequest("http://localhost:5000/api/bets","POST",
         JSON.stringify({
           selectedBet: bets,
-          creator: auth.userInfo.id,
+          creator: auth.userInfo.userId
           }),
         {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            Authorization:'Bearer '+ auth.token
+            
         }
       );
       if(responseData){

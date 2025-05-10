@@ -2,48 +2,53 @@
 const { default: mongoose } = require('mongoose');
 const HttpError = require('../models/http-error');
 
-const Bet=require('../models/bets')
-const User=require("../models/users")
+const Bet=require('../models/bet')
+const User=require("../models/user")
+const { formatDate } = require("../utils");
 
 //create Bet
 const createBetByUserId = async (req, res, next) => {
   const { selectedBet, creator } = req.body;
+  console.log("req body", req.body, formatDate(Date.now()));
   // const title = req.body.title;
   const createdBet = new Bet({
     selectedBet,
-    creator
+    creator,
+    date: formatDate(Date.now()),
   });
 
   let user;
   try {
-    user=await User.findById(creator)
+    user = await User.findById(creator);
   } catch (err) {
-    const error = new HttpError("Creating bet failed",500);
-    return next(err); 
+    const error = new HttpError("Creating bet failed", 500);
+    return next(err);
   }
-  
-  if(!user){
-    const error = new HttpError("Couldn't find user for provided id",404);
-    return next(error); 
+
+  if (!user) {
+    const error = new HttpError("Couldn't find user for provided id", 404);
+    return next(error);
   }
+   if (user.creator.toString() !== req.body.creator) {
+    const error = new HttpError("You are not allowed to add this bet.", 401);
+    return next(error);
+  } 
 
   try {
     //await createdPlace.save();
-    const sess= await mongoose.startSession();
+    const sess = await mongoose.startSession();
     sess.startTransaction();
-    await createdBet.save({session:sess});
+    await createdBet.save({ session: sess });
     // here push is not js push, it's mongoose push method which kind of allow mongoose to make a relation between 2 models (between user and places).
     //here mongoose grabs the created place id and add it to the places field of user
     user.bets.push(createdBet);
-    await user.save({session:sess});
-    await sess.commitTransaction(); 
-
-
+    await user.save({ session: sess });
+    await sess.commitTransaction();
   } catch (err) {
-    const error = new HttpError("Creating bet failed",500);
+    const error = new HttpError("Creating bet failed", 500);
     return next(err);
   }
-   
+
   res.status(201).json({ bet: createdBet });
 };
 

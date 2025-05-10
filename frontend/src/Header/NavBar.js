@@ -11,6 +11,7 @@ const NavBar = () => {
     { name: "Contact Us", to: "/contact" },
   ];
 
+  console.log("auth in nav", auth);
   // Function to render links
   const renderLinks = (additionalClasses = "") => {
     return navLinks.map((link) => (
