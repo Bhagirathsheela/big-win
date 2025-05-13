@@ -1,5 +1,6 @@
 //const http = require("http")
-const express = require("express");
+const express = require('express');
+const fs = require("fs");
 const bodyParser = require("body-parser");
 require('dotenv').config();
 const usersRoutes = require("./routes/users-routes");
@@ -16,7 +17,7 @@ app.use(bodyParser.json());
 app.use((req, res, next)=>{
   res.setHeader('Access-Control-Allow-Origin','*');
   res.setHeader('Access-Control-Allow-Headers', 'Origin,X-Requested-With,Content-Type,Accept,Authorization');
-  res.setHeader("Access-Control-Allow-Methods", 'GET, POST, PUT, DELETE');
+  res.setHeader("Access-Control-Allow-Methods", 'GET, POST,PATCH, PUT, DELETE');
   next()
 })
 
@@ -30,6 +31,11 @@ app.use((req, res, next) => {
 });
 
 app.use((error, req, res, next) => {
+   if (req.file) {
+    fs.unlink(req.file.path, (err) => {
+      console.log(err);
+    });
+  } 
   if (res.headerSent) {
     return next(error);
   }

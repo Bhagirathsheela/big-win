@@ -67,7 +67,7 @@ const signup = async (req, res, next) => {
     name,
     email,
     password: hashedPassword,
-    image: "abc",
+    image: 'default_avatar.png',
     places: [],
     bets: [],
   });
@@ -167,6 +167,57 @@ const login = async (req, res, next) => {
   //res.json({message: "Logged in!",user: existingUser.toObject({ getters: true }),});
 };
 
+// update user profile info
+const updateUser = async (req, res, next) => {
+  console.log("in user update");
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return next(
+      new HttpError("Invalid inputs passed, please check your data.", 422)
+    );
+  }
+  const { image } = req.body;
+  const userId = req.userData.userId;
+  //console.log("in user update", req.file.path);
+  let existingUser;
+  try {
+    //existingUser = await User.findOne(userId);
+    existingUser = await User.findById(userId);
+  } catch (err) {
+    const error = new HttpError("User not available to update, please try again later", 500);
+    return next(error);
+  }
+   //console.log(existingUser);
+  if (!existingUser) {
+    const error = new HttpError(
+      "User not found",
+      404
+    );
+    return next(error);
+  }
+
+  existingUser.image = req.file.path;
+  //console.log(existingUser,"after image update")
+  try {
+    await existingUser.save();
+  } catch (err) {
+    const error = new HttpError(
+      "Updating user failed, please try again later",
+      500
+    );
+    return next(error);
+  }
+
+
+  res.status(201).json({
+    userId: existingUser.id,
+    email: existingUser.email,
+    name: existingUser.name,
+  });
+
+  // res.status(201).json({ user: createdUser.toObject({ getters: true }) });
+};
 exports.getUsers = getUsers;
 exports.signup = signup;
 exports.login = login;
+exports.updateUser = updateUser;

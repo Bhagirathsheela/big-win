@@ -8,7 +8,7 @@ const User = require("./models/user");
 
 // DAILY @ 4:49 PM IST
 cron.schedule("* * * * *", async () => {
-  console.log(`📅 Running daily lottery at ${new Date().toLocaleString("en-IN",{timeZone: "Asia/Kolkata" })}`);
+  //console.log(`📅 Running daily lottery at ${new Date().toLocaleString("en-IN",{timeZone: "Asia/Kolkata" })}`);
   await runDailyLottery();
 }, {
   scheduled: true,
@@ -59,7 +59,7 @@ async function runDailyLottery() {
       creator: null
     });
 
-    console.log(`🎲 No winner today. Number ${fallbackWinner} was not bet.`);
+    //console.log(`🎲 No winner today. Number ${fallbackWinner} was not bet.`);
     return;
   }
 
@@ -79,7 +79,7 @@ async function runDailyLottery() {
     creator: winnerEntry.userId
   });
 
-  console.log(`🏆 Winner: ${user.name} (${user.email}) won ₹${winningAmount} on number ${winnerEntry.number}`);
+  //console.log(`🏆 Winner: ${user.name} (${user.email}) won ₹${winningAmount} on number ${winnerEntry.number}`);
 
   //await sendWinnerEmail(user, winnerEntry, winningAmount);
   //sendWinnerEmail({ name: "Dummy User ", email: "bhagirathsheela@gmail.com" },{ number: 7 },2500);

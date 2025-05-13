@@ -8,18 +8,18 @@ const { formatDate } = require("../utils");
 
 //create Bet
 const createBetByUserId = async (req, res, next) => {
-  const { selectedBet, creator } = req.body;
+  const { selectedBet } = req.body;
   console.log("req body", req.body, formatDate(Date.now()));
   // const title = req.body.title;
   const createdBet = new Bet({
     selectedBet,
-    creator,
+    creator:req.userData.userId,
     date: formatDate(Date.now()),
   });
 
   let user;
   try {
-    user = await User.findById(creator);
+    user = await User.findById(req.userData.userId);
   } catch (err) {
     const error = new HttpError("Creating bet failed", 500);
     return next(err);

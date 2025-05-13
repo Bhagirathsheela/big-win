@@ -15,34 +15,11 @@ import { AuthContext } from "./common/context/auth-context";
 import SignIn from "./auth/SignIn";
 import BettingPage from "./pages/BettingPage";
 import PaymentSummary from "./pages/PaymentSummary";
+import { useAuth } from "./common/hooks/auth-hook";
 
 const App = () => {
-  const [token, setToken] = useState(false);
-  const login =useCallback((user,token)=>{
-    setToken(token);
-    setUserInfo(user);
-    localStorage.setItem('userData',JSON.stringify({user: user,token: token /* expiration: tokenExpirationDate.toISOString() */}));
-  },[])
-  const logout = useCallback(()=>{
-    setToken(null);
-    setUserInfo(null);
-    localStorage.removeItem("userData");
-  },[])
-  const [userInfo, setUserInfo] = useState(null)
+ const {token,login,logout,userInfo}= useAuth()
   let routes;
-
-  useEffect(() => {
-     const storedData = JSON.parse(localStorage.getItem("userData"));
-     if (
-       storedData &&
-       storedData.token 
-     ) {
-       login(
-         storedData.user,
-         storedData.token,
-       );
-     }
-  }, [])
   
   /* if(isLoggedIn){
   routes = (
