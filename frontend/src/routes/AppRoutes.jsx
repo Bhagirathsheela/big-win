@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../common/context/auth-context";
 
 // Your pages
@@ -12,29 +12,47 @@ import BettingPage from "../pages/BettingPage";
 import PaymentSummary from "../pages/PaymentSummary";
 import TermsAndConditions from "../pages/TermsAndConditions";
 
-const AppRoutes = () => {
+// private routes
+const PrivateRoute = ({ children }) => {
   const { token } = useContext(AuthContext);
+  const location = useLocation();
 
+  if (!token) {
+    return <Navigate to="/signin" state={{ from: location }} replace />;
+  }
+
+  return children;
+};
+
+const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
-      <Route path="/bet" element={<BettingPage />} />
-      <Route path="/summary" element={<PaymentSummary />} />
       <Route path="/terms" element={<TermsAndConditions />} />
+      <Route path="/signin" element={<SignIn />} />
+      <Route path="/bet" element={<BettingPage />} />
+      {/*  Protected Routes */}
+      <Route
+        path="/profile"
+        element={
+          <PrivateRoute>
+            <Profile />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/summary"
+        element={
+          <PrivateRoute>
+            <PaymentSummary />
+          </PrivateRoute>
+        }
+      />
 
-      {token ? (
-        <>
-          <Route path="/profile" element={<Profile />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </>
-      ) : (
-        <>
-          <Route path="/signin" element={<SignIn />} />
-          <Route path="*" element={<Navigate to="/signin" replace />} />
-        </>
-      )}
+      {/* Default Fallback */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 };

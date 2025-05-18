@@ -47,10 +47,10 @@ app.use((error, req, res, next) => {
 //mongodb+srv://bhagirath:bhagiraths@cluster0.bxc5w.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
 mongoose
   .connect(
-    "mongodb+srv://bhagirath:bhagiraths@cluster0.bxc5w.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+    "mongodb+srv://bhagirath:bhagiraths@cluster0.bxc5w.mongodb.net/bigWinDB?retryWrites=true&w=majority&appName=Cluster0"
   )
   .then(() => {
-    console.log("connected to server")
+    console.log("connected to server");
     app.listen(5000);
   })
   .catch((err) => {

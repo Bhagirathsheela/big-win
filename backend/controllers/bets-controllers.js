@@ -4,7 +4,7 @@ const HttpError = require('../models/http-error');
 
 const Bet=require('../models/bet')
 const User=require("../models/user")
-const { formatDate } = require("../utils");
+//const { formatDate } = require("../utils");
 
 //create Bet
 const createBetByUserId = async (req, res, next) => {
@@ -14,7 +14,6 @@ const createBetByUserId = async (req, res, next) => {
   const createdBet = new Bet({
     selectedBet,
     creator:req.userData.userId,
-    date: formatDate(Date.now()),
   });
 
   let user;

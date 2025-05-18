@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { AuthContext } from "../common/context/auth-context";
 import { useHttpClient } from "../common/hooks/http-hook";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const LoginForm = () => {
   const {
@@ -13,6 +14,10 @@ const LoginForm = () => {
   const { sendRequest } = useHttpClient();
   const auth = useContext(AuthContext);
   const [showPassword, setShowPassword] = useState(false);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from || "/"; // Fallback to home if nothing
 
   const onSubmit = async (data) => {
     try {
@@ -27,6 +32,7 @@ const LoginForm = () => {
       );
       if (responseData) {
         auth.login(responseData, responseData.token);
+        navigate(from, { replace: true });
       }
     } catch (err) {}
   };

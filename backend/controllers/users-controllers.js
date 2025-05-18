@@ -63,14 +63,15 @@ const signup = async (req, res, next) => {
     return next(error);
   }
 
-  const createdUser = new User({
-    name,
-    email,
-    password: hashedPassword,
-    image: 'default_avatar.png',
-    places: [],
-    bets: [],
-  });
+  const createdUser = new User(
+    {
+      name,
+      email,
+      password: hashedPassword,
+      image: "uploads/images/default_avatar.png",
+      places: [],
+      bets: [],
+    });
 
   try {
     await createdUser.save();

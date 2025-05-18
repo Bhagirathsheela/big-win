@@ -1,8 +1,9 @@
 import React, { useState, useContext } from "react";
 import { useForm } from "react-hook-form";
 import { useHttpClient } from "../common/hooks/http-hook";
-import { useNotification } from "../common/context/NotificationContext";
+//import { useNotification } from "../common/context/NotificationContext";
 import { AuthContext } from "../common/context/auth-context";
+import { useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const SignupForm = ({ setShowLogin }) => {
@@ -12,9 +13,9 @@ const SignupForm = ({ setShowLogin }) => {
     handleSubmit,
     formState: { errors },
   } = useForm();
-  const { showSuccess } = useNotification();
+  //const { showSuccess } = useNotification();
   const auth = useContext(AuthContext);
-
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
 
   const onSubmit = async (data) => {
@@ -32,8 +33,10 @@ const SignupForm = ({ setShowLogin }) => {
         }
       );
       if (responseData) {
-        showSuccess("Signed up successfully, please login using credentials");
-        setShowLogin(true);
+        auth.login(responseData, responseData.token);
+        navigate("/");
+        //showSuccess("Signed up successfully, please login using credentials");
+        //setShowLogin(true);
       }
     } catch (err) {}
   };

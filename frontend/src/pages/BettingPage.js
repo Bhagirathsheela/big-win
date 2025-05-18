@@ -1,14 +1,15 @@
-// BettingPage.js
-import { useState, useEffect,useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useContext } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../common/context/auth-context";
 import { useHttpClient } from "../common/hooks/http-hook";
 
 export default function BettingPage() {
   const [bets, setBets] = useState([]);
-   const auth = useContext(AuthContext);
+  const [error, setError] = useState(null); // For showing error messages
+  const auth = useContext(AuthContext);
   const navigate = useNavigate();
-  const {sendRequest } = useHttpClient();
+  const location = useLocation(); // Used to get the current path for redirect after login
+  const { sendRequest } = useHttpClient();
 
   useEffect(() => {
     const stored = localStorage.getItem("selectedNumbers");
@@ -45,35 +46,54 @@ export default function BettingPage() {
 
   const totalAmount = bets.reduce((sum, bet) => sum + bet.amount, 0);
 
-   const handleFinalProceed = async () => {
-    console.log(bets)
-   // const totalAmount=bets.map((val)=>{ return val.amount}).reduce((acc, current) => acc + current, 0);
-   // console.log("Total amount",totalAmount)
-    //alert("Bet placed! If your number wins, you get 9x the amount.");
-    //pay?pa={UPI_ID}&pn={Name}&mc=&tid={TxnID}&tr={TxnRef}&tn={Note}&am={Amount}&cu=INR
-   // const upiUrl = `upi://pay?pa=receiver@upi&pn=ReceiverName&am=100&tn=Thanks+for+your+purchase&cu=INR`;
-     // window.location.href = upiUrl;
-     try {
-     const responseData= await sendRequest("http://localhost:5000/api/bets","POST",
+  const handleFinalProceed = async () => {
+    console.log(bets);
+    // const totalAmount = bets.map((val) => { return val.amount }).reduce((acc, current) => acc + current, 0);
+    // console.log("Total amount", totalAmount)
+    // alert("Bet placed! If your number wins, you get 9x the amount.");
+    // pay?pa={UPI_ID}&pn={Name}&mc=&tid={TxnID}&tr={TxnRef}&tn={Note}&am={Amount}&cu=INR
+    // const upiUrl = `upi://pay?pa=receiver@upi&pn=ReceiverName&am=100&tn=Thanks+for+your+purchase&cu=INR`;
+    // window.location.href = upiUrl;
+
+    // Check if user is logged in
+    if (!auth.token) {
+      navigate("/signin", { state: { from: location }, replace: true });
+      return;
+    } 
+
+    // Check if all bet amounts are more than 0
+    const hasZeroOrNegative = bets.some((bet) => bet.amount <= 0);
+    if (hasZeroOrNegative) {
+      setError("Amount should be more than 0 ₹ for all bets.");
+      return;
+    }
+
+    try {
+      const responseData = await sendRequest(
+        "http://localhost:5000/api/bets",
+        "POST",
         JSON.stringify({
           selectedBet: bets,
-          creator: auth.userInfo.userId
-          }),
+          creator: auth.userInfo.userId,
+        }),
         {
-            "Content-Type": "application/json",
-            Authorization:'Bearer '+ auth.token
-            
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + auth.token,
         }
       );
-      if(responseData){
-        navigate("/summary", { state: { bets, totalAmount, paymentId: "74ASDF-BHGAI-234W"} });
+      if (responseData) {
+        navigate("/summary", {
+          state: { bets, totalAmount, paymentId: "74ASDF-BHGAI-234W" },
+        });
         localStorage.removeItem("selectedNumbers");
       }
-    } catch (err) {} 
-  
+    } catch (err) {
+      setError("Something went wrong while placing your bet.");
+    }
   };
- /*  const handleFinalProceed = () => {
-    console.log("razor pay",window.Razorpay)
+
+  /*  const handleFinalProceed = () => {
+    console.log("razor pay", window.Razorpay)
     const options = {
       key: "rzp_test_YourTestKeyHere", // Replace with your test key from Razorpay dashboard
       amount: totalAmount * 100, // Razorpay expects amount in paise
@@ -85,7 +105,7 @@ export default function BettingPage() {
         console.log("Payment success", response);
         // Show confirmation UI
         navigate("/summary", { state: { bets, totalAmount, paymentId: response.razorpay_payment_id } });
-  
+
         // Clear stored selection
         localStorage.removeItem("selectedNumbers");
       },
@@ -102,15 +122,22 @@ export default function BettingPage() {
         alert("Razorpay SDK failed to load. Please check your internet connection.");
         return;
       }
-      
+
     const rzp = new window.Razorpay(options);
     rzp.open();
   }; */
-  
 
   return (
     <div className="min-h-screen p-4 bg-gray-100 flex flex-col items-center">
-      <h1 className="text-2xl font-bold mb-6 text-indigo-800">Place Your Bets</h1>
+      <h1 className="text-2xl font-bold mb-6 text-indigo-800">
+        Place Your Bets
+      </h1>
+
+      {error && (
+        <div className="mb-4 text-red-600 font-medium bg-red-100 p-2 px-4 rounded">
+          {error}
+        </div>
+      )}
 
       <div className="w-full max-w-xl space-y-4">
         {bets.map((bet, index) => (
@@ -118,7 +145,9 @@ export default function BettingPage() {
             key={bet.selectedNumber}
             className="flex items-center justify-between bg-white p-4 rounded-lg shadow"
           >
-            <div className="font-medium text-lg text-indigo-700">#{bet.selectedNumber}</div>
+            <div className="font-medium text-lg text-indigo-700">
+              #{bet.selectedNumber}
+            </div>
 
             <div className="flex items-center gap-2">
               <button
