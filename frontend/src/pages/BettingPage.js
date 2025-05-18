@@ -42,24 +42,29 @@ export default function BettingPage() {
       "selectedNumbers",
       JSON.stringify(updated.map((bet) => bet.selectedNumber))
     );
+
+    //  Redirect to home if all bets removed
+    if (updated.length === 0) {
+      navigate("/");
+    }
   };
 
   const totalAmount = bets.reduce((sum, bet) => sum + bet.amount, 0);
 
   const handleFinalProceed = async () => {
     console.log(bets);
-    // const totalAmount = bets.map((val) => { return val.amount }).reduce((acc, current) => acc + current, 0);
-    // console.log("Total amount", totalAmount)
-    // alert("Bet placed! If your number wins, you get 9x the amount.");
-    // pay?pa={UPI_ID}&pn={Name}&mc=&tid={TxnID}&tr={TxnRef}&tn={Note}&am={Amount}&cu=INR
-    // const upiUrl = `upi://pay?pa=receiver@upi&pn=ReceiverName&am=100&tn=Thanks+for+your+purchase&cu=INR`;
-    // window.location.href = upiUrl;
+
+    //  Empty array validation
+    if (bets.length === 0) {
+      setError("No bets selected. Please choose at least one number.");
+      return;
+    }
 
     // Check if user is logged in
     if (!auth.token) {
       navigate("/signin", { state: { from: location }, replace: true });
       return;
-    } 
+    }
 
     // Check if all bet amounts are more than 0
     const hasZeroOrNegative = bets.some((bet) => bet.amount <= 0);
@@ -91,41 +96,6 @@ export default function BettingPage() {
       setError("Something went wrong while placing your bet.");
     }
   };
-
-  /*  const handleFinalProceed = () => {
-    console.log("razor pay", window.Razorpay)
-    const options = {
-      key: "rzp_test_YourTestKeyHere", // Replace with your test key from Razorpay dashboard
-      amount: totalAmount * 100, // Razorpay expects amount in paise
-      currency: "INR",
-      name: "Lucky Numbers Lottery",
-      description: "Lottery Ticket Payment",
-      image: "https://yourlogo.com/logo.png", // Optional
-      handler: function (response) {
-        console.log("Payment success", response);
-        // Show confirmation UI
-        navigate("/summary", { state: { bets, totalAmount, paymentId: response.razorpay_payment_id } });
-
-        // Clear stored selection
-        localStorage.removeItem("selectedNumbers");
-      },
-      prefill: {
-        name: "Test User",
-        email: "test@example.com",
-        contact: "9999999999",
-      },
-      theme: {
-        color: "#4f46e5",
-      },
-    };
-    if (typeof window.Razorpay === "undefined") {
-        alert("Razorpay SDK failed to load. Please check your internet connection.");
-        return;
-      }
-
-    const rzp = new window.Razorpay(options);
-    rzp.open();
-  }; */
 
   return (
     <div className="min-h-screen p-4 bg-gray-100 flex flex-col items-center">
@@ -190,6 +160,14 @@ export default function BettingPage() {
         className="mt-4 px-6 py-2 bg-green-600 text-white rounded-full shadow hover:bg-green-700 transition duration-200"
       >
         Final Proceed
+      </button>
+
+      {/*  Back to home button */}
+      <button
+        onClick={() => navigate("/")}
+        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+      >
+        Back to Home
       </button>
     </div>
   );
