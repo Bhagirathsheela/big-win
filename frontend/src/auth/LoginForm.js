@@ -1,40 +1,43 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import { AuthContext } from "../common/context/auth-context";
 import { useHttpClient } from "../common/hooks/http-hook";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const LoginForm = () => {
-   const {
-     register,
-     handleSubmit,
-     formState: { errors },
-   } = useForm();
-    const {sendRequest } = useHttpClient();
-    const auth = useContext(AuthContext);
-    const onSubmit = async (data) => {
-      console.log("Form data:", data);
-      try {
-        const responseData = await sendRequest(
-          "http://localhost:5000/api/users/login",
-          "POST",
-          JSON.stringify({
-            email: data.email,
-            password: data.password,
-          }),
-          { "Content-Type": "application/json" }
-        );
-        if(responseData){
-          auth.login(responseData,responseData.token);
-          //console.log("user Logged in", responseData);
-        }
-      } catch (err) {}
-    };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+  const { sendRequest } = useHttpClient();
+  const auth = useContext(AuthContext);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const onSubmit = async (data) => {
+    try {
+      const responseData = await sendRequest(
+        "http://localhost:5000/api/users/login",
+        "POST",
+        JSON.stringify({
+          email: data.email,
+          password: data.password,
+        }),
+        { "Content-Type": "application/json" }
+      );
+      if (responseData) {
+        auth.login(responseData, responseData.token);
+      }
+    } catch (err) {}
+  };
+
   return (
     <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-2xl font-semibold text-center text-gray-700">
         Login
       </h2>
       <form className="mt-4" onSubmit={handleSubmit(onSubmit)}>
+        {/* Email Field */}
         <div className="mb-4 relative">
           <label className="block text-sm font-medium text-gray-600 custom_input_label">
             Email
@@ -54,13 +57,15 @@ const LoginForm = () => {
             <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
           )}
         </div>
+
+        {/* Password Field with Toggle */}
         <div className="mb-4 relative">
           <label className="block text-sm font-medium text-gray-600 custom_input_label">
             Password
           </label>
           <input
-            type="password"
-            className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            type={showPassword ? "text" : "password"}
+            className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 pr-10"
             {...register("password", {
               required: "Password is required",
               minLength: {
@@ -70,6 +75,12 @@ const LoginForm = () => {
             })}
             autoComplete="current-password"
           />
+          <span
+            className="absolute right-3 top-[22px] text-gray-500 cursor-pointer"
+            onClick={() => setShowPassword((prev) => !prev)}
+          >
+            {showPassword ? <FaEyeSlash /> : <FaEye />}
+          </span>
           {errors.password && (
             <p className="text-red-500 text-xs mt-1">
               {errors.password.message}

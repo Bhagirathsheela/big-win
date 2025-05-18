@@ -16,6 +16,7 @@ router.post(
   ],usersController.signup
 );
 router.post("/login", usersController.login);
+router.get("/:uid", usersController.getUserInfo);
 router.use(checkAuth);
 router.patch(
   "/updateUser",

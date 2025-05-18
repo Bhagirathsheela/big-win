@@ -5,14 +5,13 @@ let logoutTimer;
 export const useAuth = () => {
   const [token, setToken] = useState(false);
   const [tokenExpirationTimer, setTokenExpirationTimer] = useState();
-  const [userId, setUserId] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
 
   const login = useCallback((user, token, expirationDate) => {
     setToken(token);
     setUserInfo(user);
     const tokenExpirationDate =
-      expirationDate || new Date(new Date().getTime() + 1000 * 60 * 60);
+      expirationDate || new Date(new Date().getTime() + 1000 * 60 * 60*24);
     setTokenExpirationTimer(tokenExpirationDate);
     localStorage.setItem(
       "userData",

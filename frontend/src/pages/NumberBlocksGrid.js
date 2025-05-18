@@ -19,10 +19,30 @@ export default function NumberBlocksGrid() {
       type === "select"
         ? "/sounds/select-sound.mp3"
         : "/sounds/unselect-sound.mp3";
-    const audio = new Audio(soundPath);
-    audio.play();
+    const audio = new Audio(`${soundPath}?v=${Date.now()}`);
+    //audio.play();
+    try {
+      audio.play();
+    } catch (err) {
+      console.error("Sound playback failed:", err);
+    }
   };
+  /* const playClickSound = (type) => {
+  const soundPath =
+    type === "select"
+      ? "/sounds/select-sound.mp3"
+      : "/sounds/unselect-sound.mp3";
 
+  const audio = document.createElement("audio");
+  audio.src = soundPath;
+  audio.type = "audio/mpeg";
+
+  audio.load();
+  audio.play().catch((err) => {
+    console.error("Audio play error:", err);
+  });
+};
+ */
   const toggleNumber = (num) => {
     setSelectedNumbers((prev) => {
       const isAlreadySelected = prev.includes(num);
@@ -52,7 +72,9 @@ export default function NumberBlocksGrid() {
 
   return (
     <div className="min-h-screen p-4 bg-gradient-to-br from-gray-50 to-gray-200 flex flex-col items-center">
-      <h1 className="text-3xl font-bold mb-6 text-indigo-800">Select your Lucky Numbers</h1>
+      <h1 className="text-3xl font-bold mb-6 text-indigo-800">
+        Select your Lucky Numbers
+      </h1>
 
       <div className="flex gap-4 mb-4">
         <button
@@ -91,7 +113,9 @@ export default function NumberBlocksGrid() {
         </div>
 
         <div className="mt-8">
-          <h2 className="text-xl font-semibold mb-3 text-indigo-700">Selected Numbers:</h2>
+          <h2 className="text-xl font-semibold mb-3 text-indigo-700">
+            Selected Numbers:
+          </h2>
           <div className="flex flex-wrap gap-2">
             {selectedNumbers.map((num) => (
               <span

@@ -1,17 +1,22 @@
 import React, { useContext, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link,useNavigate } from "react-router-dom";
 import { AuthContext } from "../common/context/auth-context";
 
 const NavBar = () => {
+  const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(false);
   const auth = useContext(AuthContext);
   const navLinks = [
     { name: "Home", to: "/" },
-    { name: "About", to: "/about" },
-    { name: "Contact Us", to: "/contact" },
+    { name: "Profile", to: "/profile" },
+    { name: "Terms", to: "/terms" },
   ];
-
-  console.log("auth in nav", auth);
+   
+  const handleLogout = () => {
+    auth.logout();       // Clears context/session
+    navigate("/signin");  // Redirect to home
+  };
+  //console.log("auth in nav", auth);
   // Function to render links
   const renderLinks = (additionalClasses = "") => {
     return navLinks.map((link) => (
@@ -26,30 +31,31 @@ const NavBar = () => {
   };
   
   const renderProfile = (additionalClasses = "") => {
-   return auth.isLoggedIn ? 
-      <Link
-        to="/profile"
-        className={`flex items-center text-gray-300 hover:text-white px-3 py-2 rounded-md text-base font-medium ${additionalClasses}`}
-      >
-        <img
-          className="h-6 w-6 rounded-full mr-2"
-          src="https://ui-avatars.com/api/?name=User&size=40"
-          alt="Profile"
-        />
-        <span>{auth.userInfo.name}</span>
-      </Link>
-     : 
-      <Link
-        to="/signin"
-        className={`flex items-center text-gray-300 hover:text-white px-3 py-2 rounded-md text-base font-medium ${additionalClasses}`}
-      >
-        <img
-          className="h-6 w-6 rounded-full mr-2"
-          src="https://ui-avatars.com/api/?name=User&size=40"
-          alt="Profile"
-        />
-        <span>Sign-in</span>
-      </Link>
+   return auth.isLoggedIn ? (
+     <div
+       onClick={handleLogout}
+       className={`flex items-center text-gray-300 hover:text-white px-3 py-2 rounded-md text-base font-medium cursor-pointer  ${additionalClasses}`}
+     >
+       <img
+         className="h-6 w-6 rounded-full mr-2"
+         src={`https://ui-avatars.com/api/?name=${auth.userInfo.name}&size=40`}
+         alt="Logout"
+       />
+       <span>Logout</span>
+     </div>
+   ) : (
+     <Link
+       to="/signin"
+       className={`flex items-center text-gray-300 hover:text-white px-3 py-2 rounded-md text-base font-medium cursor-pointer  ${additionalClasses}`}
+     >
+       <img
+         className="h-6 w-6 rounded-full mr-2"
+         src="https://ui-avatars.com/api/?name=User&size=40"
+         alt="Sign In"
+       />
+       <span>Sign-in</span>
+     </Link>
+   );
     }
   
 

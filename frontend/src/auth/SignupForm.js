@@ -1,12 +1,12 @@
-// src/components/SignupForm.jsx
-import React, { useState,useContext } from "react";
+import React, { useState, useContext } from "react";
 import { useForm } from "react-hook-form";
 import { useHttpClient } from "../common/hooks/http-hook";
 import { useNotification } from "../common/context/NotificationContext";
 import { AuthContext } from "../common/context/auth-context";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const SignupForm = ({ setShowLogin }) => {
-  const {sendRequest } = useHttpClient();
+  const { sendRequest } = useHttpClient();
   const {
     register,
     handleSubmit,
@@ -14,26 +14,30 @@ const SignupForm = ({ setShowLogin }) => {
   } = useForm();
   const { showSuccess } = useNotification();
   const auth = useContext(AuthContext);
+
+  const [showPassword, setShowPassword] = useState(false);
+
   const onSubmit = async (data) => {
-    //console.log("Form data:", data);
     try {
-      const responseData=await sendRequest("http://localhost:5000/api/users/signup","POST",
+      const responseData = await sendRequest(
+        "http://localhost:5000/api/users/signup",
+        "POST",
         JSON.stringify({
-            name: data.username,
-            email: data.email,
-            password: data.password,
-          }),
+          name: data.username,
+          email: data.email,
+          password: data.password,
+        }),
         {
-            "Content-Type": "application/json"
+          "Content-Type": "application/json",
         }
       );
-      if(responseData){
-        showSuccess("Signed up successfully, please login using credentials")
-        //auth.login(responseData.user);
-        setShowLogin(true)
+      if (responseData) {
+        showSuccess("Signed up successfully, please login using credentials");
+        setShowLogin(true);
       }
     } catch (err) {}
   };
+
   return (
     <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-2xl font-semibold text-center text-gray-700">
@@ -81,8 +85,8 @@ const SignupForm = ({ setShowLogin }) => {
             Password
           </label>
           <input
-            type="password"
-            className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            type={showPassword ? "text" : "password"}
+            className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 pr-10"
             {...register("password", {
               required: "Password is required",
               minLength: {
@@ -92,6 +96,12 @@ const SignupForm = ({ setShowLogin }) => {
             })}
             autoComplete="current-password"
           />
+          <span
+            className="absolute right-3 top-[22px] text-gray-500 cursor-pointer"
+            onClick={() => setShowPassword((prev) => !prev)}
+          >
+            {showPassword ? <FaEyeSlash /> : <FaEye />}
+          </span>
           {errors.password && (
             <p className="text-red-500 text-xs mt-1">
               {errors.password.message}

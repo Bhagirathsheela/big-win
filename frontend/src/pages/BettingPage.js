@@ -53,7 +53,6 @@ export default function BettingPage() {
     //pay?pa={UPI_ID}&pn={Name}&mc=&tid={TxnID}&tr={TxnRef}&tn={Note}&am={Amount}&cu=INR
    // const upiUrl = `upi://pay?pa=receiver@upi&pn=ReceiverName&am=100&tn=Thanks+for+your+purchase&cu=INR`;
      // window.location.href = upiUrl;
-     console.log(auth)
      try {
      const responseData= await sendRequest("http://localhost:5000/api/bets","POST",
         JSON.stringify({

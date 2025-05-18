@@ -9,7 +9,7 @@ const { formatDate } = require("../utils");
 //create Bet
 const createBetByUserId = async (req, res, next) => {
   const { selectedBet } = req.body;
-  console.log("req body", req.body, formatDate(Date.now()));
+  //console.log("req body", req.body,req.userData);
   // const title = req.body.title;
   const createdBet = new Bet({
     selectedBet,
@@ -29,7 +29,8 @@ const createBetByUserId = async (req, res, next) => {
     const error = new HttpError("Couldn't find user for provided id", 404);
     return next(error);
   }
-   if (user.creator.toString() !== req.body.creator) {
+  //console.log("user",user);
+   if (user.id.toString() !== req.body.creator) {
     const error = new HttpError("You are not allowed to add this bet.", 401);
     return next(error);
   } 

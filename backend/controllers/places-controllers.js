@@ -164,7 +164,7 @@ const deletePlace = async (req, res, next) => {
   res.status(200).json({ message: 'Deleted place.' });
 };
 //place Bet
-const createBetByUserId = async (req, res, next) => {
+/* const createBetByUserId = async (req, res, next) => {
   const { title, description,location, address, creator } = req.body;
   // const title = req.body.title;
   const createdPlace = new Place({
@@ -203,7 +203,7 @@ const createBetByUserId = async (req, res, next) => {
   }
    
   res.status(201).json({ place: createdPlace });
-};
+}; */
 
 
 exports.getPlaceById = getPlaceById;

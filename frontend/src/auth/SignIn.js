@@ -6,7 +6,7 @@ const SignIn = () => {
      const [showLogin, setShowLogin] = useState(true);
       
    return (
-     <div className="min-h-screen bg-gray-100 flex flex-col justify-center mt-1">
+     <div className="min-h-screen bg-gray-100 flex flex-col justify-center mt-4 mb-4">
        <div className="text-center mb-6">
          <button
            onClick={() => setShowLogin(true)}

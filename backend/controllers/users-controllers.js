@@ -1,7 +1,7 @@
 const { validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-
+const fs = require("fs");
 const { v4: uuidv4 } = require("uuid");
 const HttpError = require("../models/http-error");
 
@@ -88,7 +88,7 @@ const signup = async (req, res, next) => {
     token = jwt.sign(
       { userId: createdUser.id, email: createdUser.email },
       "supersecret_dont_share",
-      { expiresIn: "1h" }
+      { expiresIn: "24h" }
     );
   } catch (err) {
     const error = new HttpError(
@@ -147,7 +147,7 @@ const login = async (req, res, next) => {
     token = jwt.sign(
       { userId: existingUser.id, email: existingUser.email },
       "supersecret_dont_share",
-      { expiresIn: "1h" }
+      { expiresIn: "24h" }
     );
   } catch (err) {
     const error = new HttpError(
@@ -176,7 +176,6 @@ const updateUser = async (req, res, next) => {
       new HttpError("Invalid inputs passed, please check your data.", 422)
     );
   }
-  const { image } = req.body;
   const userId = req.userData.userId;
   //console.log("in user update", req.file.path);
   let existingUser;
@@ -195,8 +194,12 @@ const updateUser = async (req, res, next) => {
     );
     return next(error);
   }
-
-  existingUser.image = req.file.path;
+  //deleting the existing image of user before updating
+  const imagePath= existingUser.image
+  fs.unlink(imagePath,error=>{
+    console.log(error);
+  }) 
+  existingUser.image = req.file.path.replace(/\\/g, "/");;
   //console.log(existingUser,"after image update")
   try {
     await existingUser.save();
@@ -217,7 +220,48 @@ const updateUser = async (req, res, next) => {
 
   // res.status(201).json({ user: createdUser.toObject({ getters: true }) });
 };
+const getUserInfo = async (req, res, next) => {
+  //const { userId } = req.body;
+  const userId = req.params.uid;
+  let existingUser;
+  try {
+    //existingUser = await User.findOne(userId);
+    existingUser = await User.findById(userId).populate(
+      "bets",
+      "selectedBet date"
+    );
+  } catch (err) {
+    const error = new HttpError(
+      "User info not available, please try again later",
+      500
+    );
+    return next(error);
+  }
+  //console.log(existingUser);
+  if (!existingUser) {
+    const error = new HttpError("User not found", 404);
+    return next(error);
+  }
+  const cleanedBets = existingUser.bets.map((bet) => ({
+    date: bet.date,
+    selectedBet: bet.selectedBet.map((sel) => ({
+      amount: sel.amount,
+      selectedNumber: sel.selectedNumber,
+    })),
+  }));
+  const userInfo = {
+    userId: existingUser.id,
+    name: existingUser.name,
+    email: existingUser.email,
+    image:existingUser.image,
+    bets: cleanedBets,
+  };
+
+  res.status(201).json({userInfo});
+
+};
 exports.getUsers = getUsers;
 exports.signup = signup;
 exports.login = login;
 exports.updateUser = updateUser;
+exports.getUserInfo = getUserInfo;
