@@ -1,18 +1,34 @@
-// NumberBlocksGrid.js
-import { useState, useEffect } from "react";
+import { useState, useEffect,useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { useHttpClient } from "../common/hooks/http-hook";
 
 export default function NumberBlocksGrid() {
+  const navigate = useNavigate();
+  const { sendRequest } = useHttpClient();
   const [selectedNumbers, setSelectedNumbers] = useState(() => {
     const stored = localStorage.getItem("selectedNumbers");
     return stored ? JSON.parse(stored) : [];
   });
-
-  const navigate = useNavigate();
+  const [winnerNumber, setWinnerNumber] = useState(null);
 
   useEffect(() => {
     localStorage.setItem("selectedNumbers", JSON.stringify(selectedNumbers));
   }, [selectedNumbers]);
+
+  useEffect(() => {
+    const fetchWinner = async () => {
+      try {
+        const responseData = await sendRequest(
+          `http://localhost:5000/api/users/getWinner`
+        );
+        if (responseData) {
+          setWinnerNumber(responseData.winnerNumber);
+        }
+      } catch (err) {}
+    };
+    
+    fetchWinner();
+  }, [sendRequest]);
 
   const playClickSound = (type) => {
     const soundPath =
@@ -20,29 +36,13 @@ export default function NumberBlocksGrid() {
         ? "/sounds/select-sound.mp3"
         : "/sounds/unselect-sound.mp3";
     const audio = new Audio(`${soundPath}?v=${Date.now()}`);
-    //audio.play();
     try {
       audio.play();
     } catch (err) {
       console.error("Sound playback failed:", err);
     }
   };
-  /* const playClickSound = (type) => {
-  const soundPath =
-    type === "select"
-      ? "/sounds/select-sound.mp3"
-      : "/sounds/unselect-sound.mp3";
 
-  const audio = document.createElement("audio");
-  audio.src = soundPath;
-  audio.type = "audio/mpeg";
-
-  audio.load();
-  audio.play().catch((err) => {
-    console.error("Audio play error:", err);
-  });
-};
- */
   const toggleNumber = (num) => {
     setSelectedNumbers((prev) => {
       const isAlreadySelected = prev.includes(num);
@@ -50,21 +50,13 @@ export default function NumberBlocksGrid() {
       return isAlreadySelected ? prev.filter((n) => n !== num) : [...prev, num];
     });
   };
-  /* const toggleNumber = (num) => {
-    playClickSound();
-    setSelectedNumbers((prev) =>
-      prev.includes(num) ? prev.filter((n) => n !== num) : [...prev, num]
-    );
-  }; */
 
   const resetSelection = () => {
     playClickSound("unselect");
     setSelectedNumbers([]);
   };
 
-  const isSelected = (num) => {
-    return selectedNumbers.includes(num);
-  };
+  const isSelected = (num) => selectedNumbers.includes(num);
 
   const proceedToBet = () => {
     navigate("/bet");
@@ -72,9 +64,16 @@ export default function NumberBlocksGrid() {
 
   return (
     <div className="min-h-screen p-4 bg-gradient-to-br from-gray-50 to-gray-200 flex flex-col items-center">
-      <h1 className="text-3xl font-bold mb-6 text-indigo-800">
+      <h1 className="text-3xl font-bold mb-4 text-indigo-800">
         Select your Lucky Numbers
       </h1>
+
+      {winnerNumber && (
+        <div className="mb-6 text-center px-4 py-3 bg-blue-100 border border-blue-300 text-blue-800 rounded-lg shadow-sm">
+          🎉 <strong>Today’s Lucky Number:</strong>{" "}
+          <span className="font-bold text-xl">{winnerNumber}</span>
+        </div>
+      )}
 
       <div className="flex gap-4 mb-4">
         <button
@@ -96,15 +95,17 @@ export default function NumberBlocksGrid() {
           {[...Array(99)].map((_, i) => {
             const num = i + 1;
             const selected = isSelected(num);
+
             return (
               <div
                 key={num}
                 onClick={() => toggleNumber(num)}
-                className={`w-12 h-12 flex items-center justify-center rounded-xl shadow-md cursor-pointer border font-semibold text-lg transition-all duration-150 transform active:scale-90 ${
-                  selected
-                    ? "bg-indigo-600 text-white scale-105 shadow-lg"
-                    : "bg-white text-gray-700 hover:bg-indigo-200"
-                }`}
+                className={`w-12 h-12 flex items-center justify-center rounded-xl shadow-md cursor-pointer border font-semibold text-lg transition-all duration-150 transform active:scale-90
+                  ${
+                    selected
+                      ? "bg-indigo-600 text-white scale-105 shadow-lg"
+                      : "bg-blue-100 text-gray-800 hover:bg-indigo-200"
+                  }`}
               >
                 {num}
               </div>
@@ -131,5 +132,3 @@ export default function NumberBlocksGrid() {
     </div>
   );
 }
-
-

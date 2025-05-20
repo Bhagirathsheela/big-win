@@ -6,6 +6,7 @@ const { v4: uuidv4 } = require("uuid");
 const HttpError = require("../models/http-error");
 
 const User = require("../models/user");
+const Result = require("../models/result");
 
 const DUMMY_USERS = [
   {
@@ -222,15 +223,11 @@ const updateUser = async (req, res, next) => {
   // res.status(201).json({ user: createdUser.toObject({ getters: true }) });
 };
 const getUserInfo = async (req, res, next) => {
-  //const { userId } = req.body;
   const userId = req.params.uid;
   let existingUser;
   try {
     //existingUser = await User.findOne(userId);
-    existingUser = await User.findById(userId).populate(
-      "bets",
-      "selectedBet date"
-    );
+    existingUser = await User.findById(userId)
   } catch (err) {
     const error = new HttpError(
       "User info not available, please try again later",
@@ -243,26 +240,43 @@ const getUserInfo = async (req, res, next) => {
     const error = new HttpError("User not found", 404);
     return next(error);
   }
-  const cleanedBets = existingUser.bets.map((bet) => ({
-    date: bet.date,
-    selectedBet: bet.selectedBet.map((sel) => ({
-      amount: sel.amount,
-      selectedNumber: sel.selectedNumber,
-    })),
-  }));
+  
   const userInfo = {
     userId: existingUser.id,
     name: existingUser.name,
     email: existingUser.email,
-    image:existingUser.image,
-    bets: cleanedBets,
+    image:existingUser.image
   };
 
   res.status(201).json({userInfo});
 
+};
+const getWinnerInfo = async (req, res, next) => {
+  let winnerInfo
+  try {
+     winnerInfo = await Result.findOne({}).sort({ createdAt: -1 });
+
+  } catch (err) {
+    const error = new HttpError(
+      "Winner not found, please try again later",
+      500
+    );
+    return next(error);
+  }
+  if (!winnerInfo) {
+    const error = new HttpError("Winner not found", 404);
+    return next(error);
+  }
+  const finalWinnerInfo = {
+    winnerNumber: winnerInfo.winnerNumber,
+    winners: winnerInfo.winners,
+  };
+
+  res.status(201).json(finalWinnerInfo);
 };
 exports.getUsers = getUsers;
 exports.signup = signup;
 exports.login = login;
 exports.updateUser = updateUser;
 exports.getUserInfo = getUserInfo;
+exports.getWinnerInfo = getWinnerInfo;

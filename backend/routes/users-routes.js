@@ -16,6 +16,7 @@ router.post(
   ],usersController.signup
 );
 router.post("/login", usersController.login);
+router.get("/getWinner", usersController.getWinnerInfo);
 router.get("/:uid", usersController.getUserInfo);
 router.use(checkAuth);
 router.patch(
@@ -23,8 +24,5 @@ router.patch(
   fileUpload.single("image"),
   usersController.updateUser
 ); 
-/* router.patch(
-  "/updateUser",
-  usersController.updateUser
-); */
+
 module.exports=router

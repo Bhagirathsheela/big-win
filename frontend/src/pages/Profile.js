@@ -13,7 +13,7 @@ export default function Profile() {
   const [newPhoto, setNewPhoto] = useState(null);
   const [showUpdateBtn, setShowUpdateBtn] = useState(false);
   const [userData, setUserData] = useState(null);
-
+  const [betsInfo, setBetsInfo] = useState([])
   const defaultPhoto = "https://www.w3schools.com/howto/img_avatar.png";
 
   useEffect(() => {
@@ -22,16 +22,27 @@ export default function Profile() {
         const responseData = await sendRequest(
           `http://localhost:5000/api/users/${auth.userInfo.userId}`
         );
-        console.log(responseData);
-        if(responseData){
+        if (responseData) {
           setUserData(responseData.userInfo);
           setPhoto(`http://localhost:5000/${responseData.userInfo.image}`);
         }
-
       } catch (err) {
         showError("Failed to load user data.");
       }
     };
+     const fetchBetInfo = async () => {
+      if (auth.userInfo.userId) {
+        try {
+          const responseData = await sendRequest(
+            `http://localhost:5000/api/bets/${auth.userInfo.userId}`
+          );
+          if (responseData) {
+            setBetsInfo(responseData);
+          }
+        } catch (err) {}
+      }
+    };
+    fetchBetInfo();
     fetchUser();
   }, [auth.token, auth.userInfo.userId, sendRequest, showError]);
 
@@ -138,10 +149,10 @@ export default function Profile() {
                 My Bets
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {userData.bets.length === 0 ? (
+                {betsInfo.length === 0 ? (
                   <p className="text-gray-500">No bets placed yet.</p>
                 ) : (
-                  userData.bets.map((bet, index) => (
+                  betsInfo.map((bet, index) => (
                     <div
                       key={index}
                       className="bg-white rounded-lg border p-4 shadow-sm"

@@ -93,10 +93,9 @@ async function runDailyLottery() {
   } else {
     const allNumbers = Array.from({ length: 99 }, (_, i) => i + 1);
     const numbersBet = flatBets.map((b) => b.number);
-    const unbetNumbers = allNumbers.filter((n) => !numbersBet.includes(n));
-    const randomIndex = Math.floor(Math.random() * unbetNumbers.length);
-    const fallbackWinner = unbetNumbers[randomIndex];
-    console.log("before result", fallbackWinner);
+    const unBetNumbers = allNumbers.filter((n) => !numbersBet.includes(n));
+    const randomIndex = Math.floor(Math.random() * unBetNumbers.length);
+    const fallbackWinner = unBetNumbers[randomIndex];
     await Result.create({
       winnerNumber: fallbackWinner,
       amount: 0,
@@ -114,9 +113,9 @@ async function runDailyLottery() {
   if (totalPayout > totalPool) {
     const allNumbers = Array.from({ length: 99 }, (_, i) => i + 1);
     const numbersBet = flatBets.map((b) => b.number);
-    const unbetNumbers = allNumbers.filter((n) => !numbersBet.includes(n));
-    const randomIndex = Math.floor(Math.random() * unbetNumbers.length);
-    const fallbackWinner = unbetNumbers[randomIndex];
+    const unBetNumbers = allNumbers.filter((n) => !numbersBet.includes(n));
+    const randomIndex = Math.floor(Math.random() * unBetNumbers.length);
+    const fallbackWinner = unBetNumbers[randomIndex];
     
     await Result.create({
       winnerNumber: fallbackWinner,

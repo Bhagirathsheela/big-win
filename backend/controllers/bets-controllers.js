@@ -51,10 +51,41 @@ const createBetByUserId = async (req, res, next) => {
 
   res.status(201).json({ bet: createdBet });
 };
+const getBetsByUserId = async (req, res, next) => {
+  const userId = req.params.uid;
+  let userBets;
+  try {
+     userBets = await Bet.find({ creator: userId });
+  } catch (err) {
+    const error = new HttpError(err);
+    return next(err);
+  }
+  console.log(userBets);
+  if (!userBets || userBets.length === 0) {
+    return next(
+      new HttpError("Could not find bets for the provided user id.", 404)
+    );
+  }
 
+  /* const cleanedBets = existingUser.bets.map((bet) => ({
+    date: bet.date,
+    selectedBet: bet.selectedBet.map((sel) => ({
+      amount: sel.amount,
+      selectedNumber: sel.selectedNumber,
+    })),
+  })); */
+
+  res.json(userBets);
+
+
+  /* res.json({
+    places: userWithPlaces.places.map((place) =>
+      place.toObject({ getters: true })
+    ),
+  }); */
+};
 
 /* exports.getPlaceById = getPlaceById;
 exports.getPlacesByUserId = getPlacesByUserId; */
 exports.createBetByUserId = createBetByUserId;
-/* exports.updatePlace = updatePlace;
-exports.deletePlace = deletePlace; */
+exports.getBetsByUserId = getBetsByUserId;
