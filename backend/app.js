@@ -47,7 +47,7 @@ app.use((error, req, res, next) => {
 //mongodb+srv://bhagirath:bhagiraths@cluster0.bxc5w.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
 mongoose
   .connect(
-    "mongodb+srv://bhagirath:bhagiraths@cluster0.bxc5w.mongodb.net/bigWinDB?retryWrites=true&w=majority&appName=Cluster0"
+    `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.bxc5w.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority&appName=Cluster0`
   )
   .then(() => {
     console.log("connected to server");

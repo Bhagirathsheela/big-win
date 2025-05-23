@@ -1,0 +1,10 @@
+{
+    "env":{
+        "DB_USER":"bhagirath",
+        "DB_PASSWORD":"bhagiraths",
+        "DB_NAME":"bigWinDB",
+        "JWT_KEY":"supersecret_dont_share",
+        "EMAIL_USER":"bhagirathsheela001@gmail.com",
+        "EMAIL_PASS":"bhldanscykqugpci"
+    }
+}
