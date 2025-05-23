@@ -75,7 +75,7 @@ export default function BettingPage() {
 
     try {
       const responseData = await sendRequest(
-        "http://localhost:5000/api/bets",
+        `${process.env.REACT_APP_BACKEND_URL}/bets`,
         "POST",
         JSON.stringify({
           selectedBet: bets,

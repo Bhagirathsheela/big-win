@@ -20,11 +20,11 @@ export default function Profile() {
     const fetchUser = async () => {
       try {
         const responseData = await sendRequest(
-          `http://localhost:5000/api/users/${auth.userInfo.userId}`
+          `${process.env.REACT_APP_BACKEND_URL}/users/${auth.userInfo.userId}`
         );
         if (responseData) {
           setUserData(responseData.userInfo);
-          setPhoto(`http://localhost:5000/${responseData.userInfo.image}`);
+          setPhoto(`${process.env.REACT_APP_ASSET_URL}/${responseData.userInfo.image}`);
         }
       } catch (err) {
         showError("Failed to load user data.");
@@ -34,7 +34,7 @@ export default function Profile() {
       if (auth.userInfo.userId) {
         try {
           const responseData = await sendRequest(
-            `http://localhost:5000/api/bets/${auth.userInfo.userId}`
+            `${process.env.REACT_APP_BACKEND_URL}/bets/${auth.userInfo.userId}`
           );
           if (responseData) {
             setBetsInfo(responseData);
@@ -44,7 +44,7 @@ export default function Profile() {
     };
     fetchBetInfo();
     fetchUser();
-  }, [auth.token, auth.userInfo.userId, sendRequest]);
+  }, [auth.token, auth.userInfo.userId, sendRequest, showError]);
 
   const handlePhotoUpload = (e) => {
     const file = e.target.files[0];
@@ -65,7 +65,7 @@ export default function Profile() {
     formData.append("image", newPhoto);
     try {
       const responseData = await sendRequest(
-        "http://localhost:5000/api/users/updateUser",
+        `${process.env.REACT_APP_BACKEND_URL}/users/updateUser`,
         "PATCH",
         formData,
         {

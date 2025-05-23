@@ -19,7 +19,7 @@ export default function NumberBlocksGrid() {
     const fetchWinner = async () => {
       try {
         const responseData = await sendRequest(
-          `http://localhost:5000/api/users/getWinner`
+          `${process.env.REACT_APP_BACKEND_URL}/users/getWinner`
         );
         if (responseData) {
           setWinnerNumber(responseData.winnerNumber);
