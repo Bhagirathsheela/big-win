@@ -171,7 +171,6 @@ const login = async (req, res, next) => {
 
 // update user profile info
 const updateUser = async (req, res, next) => {
-  console.log("in user update");
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return next(
@@ -235,7 +234,6 @@ const getUserInfo = async (req, res, next) => {
     );
     return next(error);
   }
-  //console.log(existingUser);
   if (!existingUser) {
     const error = new HttpError("User not found", 404);
     return next(error);

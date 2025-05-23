@@ -60,7 +60,6 @@ const getBetsByUserId = async (req, res, next) => {
     const error = new HttpError(err);
     return next(err);
   }
-  console.log(userBets);
   if (!userBets || userBets.length === 0) {
     return next(
       new HttpError("Could not find bets for the provided user id.", 404)

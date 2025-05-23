@@ -44,7 +44,7 @@ export default function Profile() {
     };
     fetchBetInfo();
     fetchUser();
-  }, [auth.token, auth.userInfo.userId, sendRequest, showError]);
+  }, [auth.token, auth.userInfo.userId, sendRequest]);
 
   const handlePhotoUpload = (e) => {
     const file = e.target.files[0];
