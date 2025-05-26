@@ -1,19 +1,19 @@
 import React, { useContext, Suspense } from "react";
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthContext } from "../common/context/auth-context";
 
 // Eagerly loaded component
-import Home from "../pages/Home";
+import Home from "../components/Home";
 
 // Lazy loaded components
-const About = React.lazy(() => import("../pages/About"));
-const Contact = React.lazy(() => import("../pages/Contact"));
-const Profile = React.lazy(() => import("../pages/Profile"));
+const About = React.lazy(() => import("../components/About"));
+const Contact = React.lazy(() => import("../components/Contact"));
+const Profile = React.lazy(() => import("../components/Profile"));
 const SignIn = React.lazy(() => import("../auth/SignIn"));
-const BettingPage = React.lazy(() => import("../pages/BettingPage"));
-const PaymentSummary = React.lazy(() => import("../pages/PaymentSummary"));
+const BettingPage = React.lazy(() => import("../components/BettingPage"));
+const PaymentSummary = React.lazy(() => import("../components/PaymentSummary"));
 const TermsAndConditions = React.lazy(() =>
-  import("../pages/TermsAndConditions")
+  import("../components/TermsAndConditions")
 );
 
 const AppRoutes = () => {
