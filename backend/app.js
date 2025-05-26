@@ -34,9 +34,9 @@ app.use("/api/bets", betsRoutes);
 
 /* un comment it for combined backend front end app, 
 create a public folder in backend and put build folder in it */
-app.use((req, res, next) => {
+/* app.use((req, res, next) => {
  res.sendFile(path.resolve(__dirname,"public","index.html"))
-});
+}); */
 
 // comment below part for combined app
 app.use((req, res, next) => {
