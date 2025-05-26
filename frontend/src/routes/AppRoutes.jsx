@@ -16,19 +16,8 @@ const TermsAndConditions = React.lazy(() =>
   import("../pages/TermsAndConditions")
 );
 
-// Private route guard
-const PrivateRoute = ({ children }) => {
-  const { token } = useContext(AuthContext);
-  const location = useLocation();
-
-  if (!token) {
-    return <Navigate to="/signin" state={{ from: location }} replace />;
-  }
-
-  return children;
-};
-
 const AppRoutes = () => {
+  const {isLoggedIn } = useContext(AuthContext);
   return (
     <Suspense fallback={<div className="text-center py-10">Loading...</div>}>
       <Routes>
@@ -37,23 +26,13 @@ const AppRoutes = () => {
         <Route path="/contact" element={<Contact />} />
         <Route path="/terms" element={<TermsAndConditions />} />
         <Route path="/signin" element={<SignIn />} />
-        <Route path="/bet" element={<BettingPage />} />
+        <Route path="/bet" element={isLoggedIn ?<BettingPage />:<SignIn />} />
         <Route
           path="/profile"
-          element={
-            <PrivateRoute>
-              <Profile />
-            </PrivateRoute>
-          }
+          element={isLoggedIn ? <Profile /> : <SignIn />}
         />
-        <Route
-          path="/summary"
-          element={
-            <PrivateRoute>
-              <PaymentSummary />
-            </PrivateRoute>
-          }
-        />
+        <Route path="/summary" element={isLoggedIn ? <PaymentSummary /> : <SignIn />} />
+
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Suspense>
