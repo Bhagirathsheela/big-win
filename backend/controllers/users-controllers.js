@@ -243,7 +243,8 @@ const getUserInfo = async (req, res, next) => {
     userId: existingUser.id,
     name: existingUser.name,
     email: existingUser.email,
-    image:existingUser.image
+    image: existingUser.image,
+    createdAt: existingUser.createdAt
   };
 
   res.status(201).json({userInfo});

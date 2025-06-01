@@ -8,7 +8,7 @@ const User = require("./models/user");
 
 // DAILY @ 6:00 AM IST 0 6 * * *
 cron.schedule(
-  "* * * * *",
+  "0 6 * * *",
   async () => {
     console.log(
       `📅 Running daily lottery at ${new Date().toLocaleString("en-IN", {
