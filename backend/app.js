@@ -18,15 +18,15 @@ app.use(bodyParser.json());
 app.use('/uploads/images',express.static(path.join('uploads','images')));
 
 // uncomment below code for combined app
-app.use(express.static(path.join("public")));
+//app.use(express.static(path.join("public")));
 
 // comment below code for combined
-/* app.use((req, res, next)=>{
+ app.use((req, res, next)=>{
   res.setHeader('Access-Control-Allow-Origin','*');
   res.setHeader('Access-Control-Allow-Headers', 'Origin,X-Requested-With,Content-Type,Accept,Authorization');
   res.setHeader("Access-Control-Allow-Methods", 'GET, POST,PATCH, PUT, DELETE');
   next()
-}); */
+}); 
 
 app.use("/api/places", placesRoutes);
 app.use("/api/users", usersRoutes);
@@ -34,15 +34,15 @@ app.use("/api/bets", betsRoutes);
 
 /* un comment it for combined backend front end app, 
 create a public folder in backend and put build folder in it */
- app.use((req, res, next) => {
+ /* app.use((req, res, next) => {
  res.sendFile(path.resolve(__dirname,"public","index.html"))
-});
+}); */
 
 // comment below part for combined app
-/* app.use((req, res, next) => {
+ app.use((req, res, next) => {
   const error = new HttpError("Could not find this route.", 404);
   throw error;
-}); */
+}); 
 
 app.use((error, req, res, next) => {
    if (req.file) {
