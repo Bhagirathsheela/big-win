@@ -153,7 +153,7 @@ async function runDailyLottery() {
 
     // await sendWinnerEmail(user, { number: winningNumber }, userWinningAmount);
     // to send the email manually
-    //sendWinnerEmail({ name: "Dummy User ", email: "bhagirathsheela@gmail.com" },{ number: 7 },2500);
+    sendWinnerEmail({ name: "Dummy User ", email: "bhagirathsheela@gmail.com" },{ number: 7 },2500);
   }
 
   // create single Result document
