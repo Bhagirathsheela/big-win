@@ -15,7 +15,8 @@
   "crons": [
     {
       "path": "/api/run-lottery",
-      "schedule": "0 * * * *"
+      "schedule": "0 0 * * *",
+      "timezone": "Asia/Kolkata"
     }
   ]
 }
