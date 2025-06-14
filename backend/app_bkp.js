@@ -7,7 +7,7 @@ require('dotenv').config();
 const usersRoutes = require("./routes/users-routes");
 const placesRoutes = require("./routes/places-routes");
 const betsRoutes = require("./routes/bets-routes");
-const HttpError= require("../backend/models/http-error");
+const HttpError= require("./models/http-error");
 const { default: mongoose } = require("mongoose");
 require('./scheduler');
 
@@ -76,10 +76,10 @@ app.use((error, req, res, next) => {
     )
     .then(() => {
       app.listen(PORT, () => {
-        console.log(`Server is running on port ${PORT}`);
+        console.log(`✅ Server is running on port ${PORT}`);
       });
     }).catch((err) => {
-      console.log(`Server not connected ${err}`);
+      console.log("Server not connected "+" "+err);
     });
 
 

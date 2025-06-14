@@ -1,0 +1,23 @@
+{
+    "functions": {
+      "api/run-lottery.js": {
+        "runtime": "nodejs18.x",
+        "schedule": "0 6 * * *"
+      }
+    },
+    "builds": [
+      {
+        "src": "app.js",
+        "use": "@vercel/node"
+      },
+      {
+        "src": "api/run-lottery.js",
+        "use": "@vercel/node"
+      }
+    ],
+    "routes": [
+      { "src": "/api/run-lottery", "dest": "api/run-lottery.js" },
+      { "src": "/.*", "dest": "app.js" }
+    ]
+  }
+  
