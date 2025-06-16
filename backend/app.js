@@ -7,6 +7,7 @@ require('dotenv').config();
 const usersRoutes = require("./routes/users-routes");
 const placesRoutes = require("./routes/places-routes");
 const betsRoutes = require("./routes/bets-routes");
+const lotteryRoutes = require("./routes/lottery-routes");
 const HttpError= require("./models/http-error");
 const { default: mongoose } = require("mongoose");
 require('./scheduler');
@@ -31,6 +32,7 @@ app.use('/uploads/images',express.static(path.join('uploads','images')));
 app.use("/api/places", placesRoutes);
 app.use("/api/users", usersRoutes);
 app.use("/api/bets", betsRoutes);
+app.use("/api/lottery", lotteryRoutes);
 
 /* un comment it for combined backend front end app, 
 create a public folder in backend and put build folder in it */

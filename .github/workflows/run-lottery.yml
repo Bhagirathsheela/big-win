@@ -1,0 +1,16 @@
+name: Run Daily Lottery
+
+on:
+  schedule:
+    - cron: '30 0 * * *'  # 6:00 AM IST = 00:30 UTC
+  workflow_dispatch:
+
+jobs:
+  run-lottery:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Lottery API
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          curl -s -H "Authorization: Bearer $CRON_SECRET" https://big-win-backend.onrender.com/api/lottery/run
