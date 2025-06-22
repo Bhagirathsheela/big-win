@@ -9,6 +9,8 @@ import Header from "./Header"
 import Footer from "./Footer";
 import { AuthContext } from "./common/context/auth-context";
 import { useAuth } from "./common/hooks/auth-hook";
+import { LayoutProvider } from "./common/context/LayoutContext";
+import Popup from "./common/ui/Popup";
 
 const App = () => {
  const auth= useAuth();
@@ -39,27 +41,30 @@ const App = () => {
   return (
     <LoaderProvider>
       <NotificationProvider>
-        <ToastContainer />
-        <Loader />
-        <AuthContext.Provider
-          value={{
-            isLoggedIn: !!auth.token,
-            token: auth.token,
-            userInfo: auth.userInfo,
-            login: auth.login,
-            logout: auth.logout,
-          }}
-        >
-          <Router>
-            <div className="flex flex-col min-h-screen">
-              <Header />
-              <div className="flex-grow bg-gray-100">
-                <AppRoutes />
+        <LayoutProvider>
+          <ToastContainer />
+          <Loader />
+          <Popup />
+          <AuthContext.Provider
+            value={{
+              isLoggedIn: !!auth.token,
+              token: auth.token,
+              userInfo: auth.userInfo,
+              login: auth.login,
+              logout: auth.logout,
+            }}
+          >
+            <Router>
+              <div className="flex flex-col min-h-screen">
+                <Header />
+                <div className="flex-grow bg-gray-100">
+                  <AppRoutes />
+                </div>
+                <Footer />
               </div>
-              <Footer />
-            </div>
-          </Router>
-        </AuthContext.Provider>
+            </Router>
+          </AuthContext.Provider>
+        </LayoutProvider>
       </NotificationProvider>
     </LoaderProvider>
   );

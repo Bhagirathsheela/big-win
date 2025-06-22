@@ -12,9 +12,9 @@ const Profile = React.lazy(() => import("../components/Profile"));
 const SignIn = React.lazy(() => import("../auth/SignIn"));
 const BettingPage = React.lazy(() => import("../components/BettingPage"));
 const PaymentSummary = React.lazy(() => import("../components/PaymentSummary"));
-const TermsAndConditions = React.lazy(() =>
-  import("../components/TermsAndConditions")
-);
+const TermsAndConditions = React.lazy(() =>import("../components/TermsAndConditions"));
+const ResetPasswordPage = React.lazy(() =>import("../components/ResetPasswordPage"));
+
 
 const AppRoutes = () => {
   const {isLoggedIn } = useContext(AuthContext);
@@ -26,12 +26,19 @@ const AppRoutes = () => {
         <Route path="/contact" element={<Contact />} />
         <Route path="/terms" element={<TermsAndConditions />} />
         <Route path="/signin" element={<SignIn />} />
-        <Route path="/bet" element={isLoggedIn ?<BettingPage />:<SignIn />} />
+        <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+        <Route
+          path="/bet"
+          element={isLoggedIn ? <BettingPage /> : <SignIn />}
+        />
         <Route
           path="/profile"
           element={isLoggedIn ? <Profile /> : <SignIn />}
         />
-        <Route path="/summary" element={isLoggedIn ? <PaymentSummary /> : <SignIn />} />
+        <Route
+          path="/summary"
+          element={isLoggedIn ? <PaymentSummary /> : <SignIn />}
+        />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

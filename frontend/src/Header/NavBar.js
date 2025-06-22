@@ -106,7 +106,7 @@ const NavBar = () => {
             {/* Logo */}
             <div className="flex-shrink-0">
               <Link to="/">
-                <img className="h-8 w-8" src="./logo.png" alt="Logo" />
+                <img className="h-8 w-8" src="/logo.png" alt="Logo" />
               </Link>
             </div>
 

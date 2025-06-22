@@ -7,7 +7,7 @@ const HttpError = require("../models/http-error");
 
 const User = require("../models/user");
 const Result = require("../models/result");
-
+const { sendEmail } = require("../utils/email"); 
 const DUMMY_USERS = [
   {
     id: "u1",
@@ -273,9 +273,100 @@ const getWinnerInfo = async (req, res, next) => {
 
   res.status(201).json(finalWinnerInfo);
 };
+const sendRestEmail = async (req, res, next) => {
+  const emailToSendLink = req.body.email;
+  let existingUser;
+  try {
+    existingUser = await User.findOne({ email: emailToSendLink });
+  } catch (err) {
+    const error = new HttpError(
+      "No user with provided email , please try again later",
+      500
+    );
+    return next(error);
+  }
+  if (!existingUser) {
+    const error = new HttpError("User not found with this email", 404);
+    return next(error);
+  }
+  console.log(existingUser);
+  token = jwt.sign(
+    { name: existingUser.name, email: existingUser.email },
+    process.env.JWT_KEY,
+    { expiresIn: "1h" }
+  );
+  //console.log(process.env,"env value")
+  const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`;
+  const emailOptions = {
+    to: existingUser.email,
+    subject: "🔐 Reset Your Password",
+    html: `
+      <div style="font-family: Arial, sans-serif;">
+        <h2>Password Reset Request</h2>
+        <p>Click the button below to reset your password:</p>
+        <a href="${resetLink}" style="display: inline-block; padding: 10px 20px; background: #007BFF; color: white; text-decoration: none; border-radius: 5px;">Reset Password</a>
+        <p>If you did not request this, please ignore this email.</p>
+        <p>Note: This link will expire in 1 hour.</p>
+      </div>
+    `,
+  };
+  try {
+    await sendEmail(emailOptions);
+    res.status(200).json({ message: "Reset link sent!" });
+  } catch (err) {
+    return next(new HttpError("Could not send email, try again later", 500));
+  }
+};
+
+const updatePassword = async (req, res, next) => {
+  const { token, newPassword } = req.body;
+  let decodedToken;
+  try {
+    decodedToken = jwt.verify(token, process.env.JWT_KEY);
+  } catch (err) {
+    const error = new HttpError("Invalid or expired token", 401);
+    return next(error);
+  }
+
+  let existingUser;
+  try {
+    existingUser = await User.findOne({ email: decodedToken.email });
+  } catch (err) {
+    const error = new HttpError(
+      "No user found , please try again later",
+      500
+    );
+    return next(error);
+  }
+  if (!existingUser) {
+    const error = new HttpError("User not found with this email", 404);
+    return next(error);
+  }
+
+  let hashedPassword;
+  try {
+    hashedPassword = await bcrypt.hash(newPassword, 12);
+  } catch (err) {
+    const error = new HttpError(
+      "Could not update password, please try again.",
+      500
+    );
+    return next(error);
+  }
+  existingUser.password = hashedPassword;
+  try {
+    await existingUser.save();
+  } catch (err) {
+    const error = new HttpError("Saving new password failed", 500);
+    return next(error);
+  }
+  res.status(200).json({ message: "Password updated successfully!" });
+};
 exports.getUsers = getUsers;
 exports.signup = signup;
 exports.login = login;
 exports.updateUser = updateUser;
 exports.getUserInfo = getUserInfo;
 exports.getWinnerInfo = getWinnerInfo;
+exports.sendRestEmail = sendRestEmail;
+exports.updatePassword = updatePassword;

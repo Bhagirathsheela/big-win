@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const Bet = require("./models/bet");
 const Result = require("./models/result");
 const User = require("./models/user");
+const { sendEmail } = require("./utils/email");
 
 // DAILY @ 6:00 AM IST 0 6 * * *
 cron.schedule(
@@ -63,14 +64,14 @@ async function runDailyLottery() {
   } */
 
   //  Fetch only bets from yesterday 6am to today 6am
-  /* const allBets = await Bet.find({
+   const allBets = await Bet.find({
     createdAt: { $gte: yesterday6am, $lt: today6am },
-  }); */
+  }); 
 
   // Fetch all bets added after 6 AM today
-  const allBets = await Bet.find({
+  /* const allBets = await Bet.find({
     createdAt: { $gte: today6am },
-  });
+  }); */
 
   const flatBets = allBets.flatMap((bet) =>
     bet.selectedBet.map((entry) => ({
@@ -153,7 +154,25 @@ async function runDailyLottery() {
 
     // await sendWinnerEmail(user, { number: winningNumber }, userWinningAmount);
     // to send the email manually
-    sendWinnerEmail({ name: "Dummy User ", email: "bhagirathsheela@gmail.com" },{ number: 7 },2500);
+    //sendWinnerEmail({ name: "Dummy User ", email: "bhagirathsheela@gmail.com" },{ number: 7 },2500);
+    await sendEmail({
+      to: user.email,
+      subject: `🎉 Jackpot Alert! ${user.name}, You Just Won ₹${userWinningAmount}! 🤑`,
+      html: `<div style="font-family: Arial, sans-serif; background: #f9f9f9; padding: 30px; border-radius: 10px; color: #333;">
+          <h1 style="color: #4CAF50;">🎊 Congratulations, ${user.name}! 🎊</h1>
+          <p style="font-size: 18px;">Your lucky number <strong style="color: #007bff;">${winnerEntry.number}</strong> just hit the jackpot!</p>
+          <p style="font-size: 20px;"><strong>💰 You’ve won ₹${userWinningAmount}!</strong></p>
+          <hr style="margin: 20px 0;" />
+          <p style="font-size: 16px;">Thank you for playing <strong>Big Win Lottery</strong>. We love having you in the game!</p>
+          <p style="font-size: 16px;">Stay tuned for more chances to win big. 🍀</p>
+          <br />
+          <a href="https://your-lottery-site.com" style="display: inline-block; padding: 12px 20px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            🔁 Play Again
+          </a>
+          <br /><br />
+          <small style="color: #777;">This is an automated message. Please do not reply.</small>
+        </div>`,
+    });
   }
 
   // create single Result document
@@ -164,7 +183,7 @@ async function runDailyLottery() {
   });
 }
 
-async function sendWinnerEmail(user, winnerEntry, winningAmount) {
+/* async function sendWinnerEmail(user, winnerEntry, winningAmount) {
   try {
     await transporter.sendMail({
       from: '"Big Win Lottery 🎰" <test@gmail.com>',
@@ -191,7 +210,7 @@ async function sendWinnerEmail(user, winnerEntry, winningAmount) {
   } catch (error) {
     console.error("❌ Failed to send email:", error);
   }
-}
+} */
 
 module.exports = { runDailyLottery }; // Optional, depending on how you load this
 

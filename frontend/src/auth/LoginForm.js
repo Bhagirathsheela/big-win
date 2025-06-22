@@ -4,6 +4,8 @@ import { AuthContext } from "../common/context/auth-context";
 import { useHttpClient } from "../common/hooks/http-hook";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useLayout } from "../common/context/LayoutContext";
+import ResetPwdPopupForm from "../components/ResetPwdPopupForm";
 
 const LoginForm = () => {
   const {
@@ -14,10 +16,11 @@ const LoginForm = () => {
   const { sendRequest } = useHttpClient();
   const auth = useContext(AuthContext);
   const [showPassword, setShowPassword] = useState(false);
-
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from || "/"; // Fallback to home if nothing
+  const { openPopup } = useLayout();
+
+  const from = location.state?.from || "/";
 
   const onSubmit = async (data) => {
     try {
@@ -35,6 +38,14 @@ const LoginForm = () => {
         navigate(from, { replace: true });
       }
     } catch (err) {}
+  };
+
+  const handleResetClick = () => {
+    console.log(" clicked")
+    openPopup("pwdResetPopup", {
+      title: "Reset Password",
+      body: <ResetPwdPopupForm />,
+    });
   };
 
   return (
@@ -64,7 +75,7 @@ const LoginForm = () => {
           )}
         </div>
 
-        {/* Password Field with Toggle */}
+        {/* Password Field */}
         <div className="mb-4 relative">
           <label className="block text-sm font-medium text-gray-600 custom_input_label">
             Password
@@ -93,6 +104,7 @@ const LoginForm = () => {
             </p>
           )}
         </div>
+
         <button
           type="submit"
           className="w-full px-4 py-2 font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600"
@@ -100,6 +112,17 @@ const LoginForm = () => {
           Login
         </button>
       </form>
+
+      {/* Forgot Password Link */}
+      <div className="text-center mt-4 text-sm text-gray-600">
+        <span>Forgot password? </span>
+        <span
+          onClick={handleResetClick}
+          className="text-blue-600 hover:underline cursor-pointer"
+        >
+          click here
+        </span>
+      </div>
     </div>
   );
 };
