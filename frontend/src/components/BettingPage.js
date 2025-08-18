@@ -19,7 +19,7 @@ export default function BettingPage() {
 
   const handleAmountChange = (index, newAmount) => {
     const updated = [...bets];
-    updated[index].amount = Math.max(0, parseInt(newAmount) || 0);
+    updated[index].amount = Math.max(0, parseInt(newAmount, 10) || 0);
     setBets(updated);
   };
 
@@ -116,7 +116,7 @@ export default function BettingPage() {
             className="flex items-center justify-between bg-white p-4 rounded-lg shadow"
           >
             <div className="font-medium text-lg text-indigo-700">
-              #{bet.selectedNumber}
+              #{bet.selectedNumber.toString().padStart(2, "0")}
             </div>
 
             <div className="flex items-center gap-2">
@@ -127,11 +127,29 @@ export default function BettingPage() {
                 -
               </button>
               <input
-                type="number"
+                type="text" // change to text so browser doesn’t preserve "0095"
+                inputMode="numeric" // still brings up numeric keyboard on mobile
+                pattern="[0-9]*" // restricts to digits
                 className="w-20 px-2 py-1 border rounded text-center"
                 value={bet.amount}
-                onChange={(e) => handleAmountChange(index, e.target.value)}
+                onChange={(e) => {
+                  let raw = e.target.value;
+
+                  // remove non-digits
+                  raw = raw.replace(/\D/g, "");
+
+                  // remove leading zeros but allow single "0"
+                  let cleaned = raw.replace(/^0+(?=\d)/, "");
+
+                  handleAmountChange(index, cleaned);
+                }}
+                onBlur={(e) => {
+                  if (e.target.value === "") {
+                    handleAmountChange(index, "0");
+                  }
+                }}
               />
+
               <button
                 onClick={() => handleIncrease(index)}
                 className="w-8 h-8 text-lg bg-gray-200 rounded hover:bg-gray-300"

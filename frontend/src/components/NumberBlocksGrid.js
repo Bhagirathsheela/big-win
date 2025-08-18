@@ -26,7 +26,7 @@ export default function NumberBlocksGrid() {
         }
       } catch (err) {}
     };
-    
+
     fetchWinner();
   }, [sendRequest]);
 
@@ -68,10 +68,12 @@ export default function NumberBlocksGrid() {
         Select your Lucky Numbers
       </h1>
 
-      {winnerNumber && (
+      {winnerNumber !== null && (
         <div className="mb-6 text-center px-4 py-3 bg-blue-100 border border-blue-300 text-blue-800 rounded-lg shadow-sm">
           🎉 <strong>Today’s Lucky Number:</strong>{" "}
-          <span className="font-bold text-xl">{winnerNumber}</span>
+          <span className="font-bold text-xl">
+            {winnerNumber.toString().padStart(2, "0")}
+          </span>
         </div>
       )}
 
@@ -92,8 +94,8 @@ export default function NumberBlocksGrid() {
 
       <div className="w-full max-w-6xl px-2 sm:px-4 md:px-6">
         <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-4 justify-center">
-          {[...Array(99)].map((_, i) => {
-            const num = i + 1;
+          {[...Array(100)].map((_, i) => {
+            const num = i; // now starts at 0, goes up to 99
             const selected = isSelected(num);
 
             return (
@@ -107,7 +109,7 @@ export default function NumberBlocksGrid() {
                       : "bg-blue-100 text-gray-800 hover:bg-indigo-200"
                   }`}
               >
-                {num}
+                {num.toString().padStart(2, "0")}
               </div>
             );
           })}
@@ -123,7 +125,7 @@ export default function NumberBlocksGrid() {
                 key={num}
                 className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm shadow-sm"
               >
-                {num}
+                {num.toString().padStart(2, "0")}
               </span>
             ))}
           </div>
