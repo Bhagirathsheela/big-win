@@ -200,7 +200,7 @@ const updateUser = async (req, res, next) => {
   fs.unlink(imagePath,error=>{
     console.log(error);
   }) 
-  existingUser.image = req.file.path.replace(/\\/g, "/");;
+  existingUser.image = req.file.path.replace(/\\/g, "/");
   //console.log(existingUser,"after image update")
   try {
     await existingUser.save();
