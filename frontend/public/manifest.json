@@ -1,0 +1,16 @@
+{
+  "short_name": "Big Win",
+  "name": "Big Win — Pick your lucky number",
+  "description": "Pick your lucky numbers and win up to 9x your stake in daily draws.",
+  "icons": [
+    { "src": "favicon.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "any" },
+    { "src": "favicon.ico", "sizes": "64x64 32x32 24x24 16x16", "type": "image/x-icon" },
+    { "src": "logo192.png", "type": "image/png", "sizes": "192x192", "purpose": "any maskable" },
+    { "src": "logo512.png", "type": "image/png", "sizes": "512x512", "purpose": "any maskable" }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#9333EA",
+  "background_color": "#FFF7ED",
+  "orientation": "portrait"
+}

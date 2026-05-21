@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import { AuthContext } from "../common/context/auth-context";
 import { useHttpClient } from "../common/hooks/http-hook";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaEnvelope, FaLock } from "react-icons/fa";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useLayout } from "../common/context/LayoutContext";
 import ResetPwdPopupForm from "../components/ResetPwdPopupForm";
@@ -27,10 +27,7 @@ const LoginForm = () => {
       const responseData = await sendRequest(
         `${process.env.REACT_APP_BACKEND_URL}/users/login`,
         "POST",
-        JSON.stringify({
-          email: data.email,
-          password: data.password,
-        }),
+        JSON.stringify({ email: data.email, password: data.password }),
         { "Content-Type": "application/json" }
       );
       if (responseData) {
@@ -41,87 +38,85 @@ const LoginForm = () => {
   };
 
   const handleResetClick = () => {
-    console.log(" clicked")
     openPopup("pwdResetPopup", {
-      title: "Reset Password",
+      title: "Reset password",
       body: <ResetPwdPopupForm />,
     });
   };
 
   return (
-    <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-2xl font-semibold text-center text-gray-700">
-        Login
+    <div className="card-pop">
+      <h2 className="font-display text-xl font-bold text-brand-purpleDeep text-center mb-5">
+        Login to your account
       </h2>
-      <form className="mt-4" onSubmit={handleSubmit(onSubmit)}>
-        {/* Email Field */}
-        <div className="mb-4 relative">
-          <label className="block text-sm font-medium text-gray-600 custom_input_label">
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <div>
+          <label className="block text-xs font-semibold text-gray-500 mb-1 ml-1">
             Email
           </label>
-          <input
-            type="email"
-            className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-            {...register("email", {
-              required: "Email is required",
-              pattern: {
-                value: /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/,
-                message: "Invalid email address",
-              },
-            })}
-          />
+          <div className="relative">
+            <FaEnvelope className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-purple/60" />
+            <input
+              type="email"
+              placeholder="you@example.com"
+              className="input-fancy pl-11"
+              {...register("email", {
+                required: "Email is required",
+                pattern: {
+                  value: /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/,
+                  message: "Please enter a valid email",
+                },
+              })}
+            />
+          </div>
           {errors.email && (
-            <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
+            <p className="text-pink-600 text-xs mt-1 ml-1">{errors.email.message}</p>
           )}
         </div>
 
-        {/* Password Field */}
-        <div className="mb-4 relative">
-          <label className="block text-sm font-medium text-gray-600 custom_input_label">
+        <div>
+          <label className="block text-xs font-semibold text-gray-500 mb-1 ml-1">
             Password
           </label>
-          <input
-            type={showPassword ? "text" : "password"}
-            className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 pr-10"
-            {...register("password", {
-              required: "Password is required",
-              minLength: {
-                value: 6,
-                message: "Password must be at least 6 characters",
-              },
-            })}
-            autoComplete="current-password"
-          />
-          <span
-            className="absolute right-3 top-[22px] text-gray-500 cursor-pointer"
-            onClick={() => setShowPassword((prev) => !prev)}
-          >
-            {showPassword ? <FaEyeSlash /> : <FaEye />}
-          </span>
+          <div className="relative">
+            <FaLock className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-purple/60" />
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="At least 6 characters"
+              className="input-fancy pl-11 pr-12"
+              autoComplete="current-password"
+              {...register("password", {
+                required: "Password is required",
+                minLength: { value: 6, message: "At least 6 characters" },
+              })}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((p) => !p)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl grid place-items-center text-gray-500 hover:text-brand-purpleDeep hover:bg-purple-50 transition"
+              aria-label="Toggle password"
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </button>
+          </div>
           {errors.password && (
-            <p className="text-red-500 text-xs mt-1">
-              {errors.password.message}
-            </p>
+            <p className="text-pink-600 text-xs mt-1 ml-1">{errors.password.message}</p>
           )}
         </div>
 
-        <button
-          type="submit"
-          className="w-full px-4 py-2 font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600"
-        >
-          Login
-        </button>
+        <button type="submit" className="btn-primary w-full">Login</button>
       </form>
 
-      {/* Forgot Password Link */}
-      <div className="text-center mt-4 text-sm text-gray-600">
-        <span>Forgot password? </span>
-        <span
+      <div className="text-center mt-4 text-sm text-gray-500">
+        Forgot password?{" "}
+        <button
+          type="button"
           onClick={handleResetClick}
-          className="text-blue-600 hover:underline cursor-pointer"
+          className="text-brand-pink font-semibold hover:underline"
         >
-          click here
-        </span>
+          Reset it
+        </button>
       </div>
     </div>
   );

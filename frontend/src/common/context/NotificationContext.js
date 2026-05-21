@@ -2,44 +2,31 @@ import React, { createContext, useContext } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-// Create Context
 const NotificationContext = createContext();
 
-// Custom Hook to Use Context
 export const useNotification = () => useContext(NotificationContext);
 
-// Provider Component
 export const NotificationProvider = ({ children }) => {
-/*   // Show Success Message
-  const showSuccess = (message) => toast.success(message);
-
-  // Show Error Message
-  const showError = (message) => toast.error(message);
- */
-const getToastStyle = () => ({
-  width:
-    window.innerWidth < 600 ? "95%" : window.innerWidth < 1200 ? "80%" : "100%",
-  maxWidth: "500px",
-  margin: "0 auto",
-  textAlign: "center",
-});
-const showSuccess = (message) => {
-  toast.dismiss(); // Dismiss any existing notification
-  toast.success(message, {
+  const baseOptions = {
     position: "top-center",
     autoClose: 3000,
-    style: getToastStyle(),
-  });
-};
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    theme: "colored",
+  };
 
-const showError = (message) => {
-  toast.dismiss(); // Dismiss any existing notification
-  toast.error(message, {
-    position: "top-center",
-    autoClose: 3000,
-    style: getToastStyle(),
-  });
-};
+  const showSuccess = (message) => {
+    toast.dismiss();
+    toast.success(message, baseOptions);
+  };
+
+  const showError = (message) => {
+    toast.dismiss();
+    toast.error(message, baseOptions);
+  };
+
   return (
     <NotificationContext.Provider value={{ showSuccess, showError }}>
       {children}
