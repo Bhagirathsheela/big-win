@@ -1,11 +1,16 @@
 {
-    "env":{
-        "DB_USER":"bhagirath",
-        "DB_PASSWORD":"bhagiraths",
-        "DB_NAME":"bigWinDB",
-        "JWT_KEY":"supersecret_dont_share",
-        "EMAIL_USER":"bhagirathsheela001@gmail.com",
-        "EMAIL_PASS":"bhldanscykqugpci",
-        "FRONTEND_URL":"http://localhost:3000"
-    }
+  "env": {
+    "DB_USER": "bhagirath",
+    "DB_PASSWORD": "bhagiraths",
+    "DB_NAME": "bigWinDB",
+    "JWT_KEY": "supersecret_dont_share",
+    "EMAIL_USER": "bhagirathsheela001@gmail.com",
+    "EMAIL_PASS": "bhldanscykqugpci",
+    "FRONTEND_URL": "http://localhost:3000",
+
+    "CRON_SCHEDULES": "0 6 * * *",
+    "CRON_SECRET": "supersecret_lottery_trigger",
+    "HOUSE_MARGIN": "0.2",
+    "PAYOUT_MULTIPLIER": "9"
+  }
 }

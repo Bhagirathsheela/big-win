@@ -7,7 +7,8 @@ const HttpError = require("../models/http-error");
 
 const User = require("../models/user");
 const Result = require("../models/result");
-const { sendEmail } = require("../utils/email"); 
+const { sendEmail } = require("../utils/email");
+const tpl = require("../utils/emailTemplates");
 const DUMMY_USERS = [
   {
     id: "u1",
@@ -297,19 +298,11 @@ const sendRestEmail = async (req, res, next) => {
   );
   //console.log(process.env,"env value")
   const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`;
-  const emailOptions = {
-    to: existingUser.email,
-    subject: "🔐 Reset Your Password",
-    html: `
-      <div style="font-family: Arial, sans-serif;">
-        <h2>Password Reset Request</h2>
-        <p>Click the button below to reset your password:</p>
-        <a href="${resetLink}" style="display: inline-block; padding: 10px 20px; background: #007BFF; color: white; text-decoration: none; border-radius: 5px;">Reset Password</a>
-        <p>If you did not request this, please ignore this email.</p>
-        <p>Note: This link will expire in 1 hour.</p>
-      </div>
-    `,
-  };
+  const { subject, html } = tpl.resetPasswordEmail({
+    name: existingUser.name,
+    resetLink,
+  });
+  const emailOptions = { to: existingUser.email, subject, html };
   try {
     await sendEmail(emailOptions);
     res.status(200).json({ message: "Reset link sent!" });
