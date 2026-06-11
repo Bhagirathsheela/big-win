@@ -1,0 +1,24 @@
+name: Keep Render Awake
+
+on:
+  schedule:
+    # Every 10 minutes. GitHub may delay scheduled runs during peak hours;
+    # ~10-15 min is realistic. Adjust to "*/5" if you want to try harder.
+    - cron: "*/10 * * * *"
+  workflow_dispatch:  # lets you also click "Run" manually from the Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Ping backend health endpoint
+        run: |
+          # Hit a cheap public route so Render stays warm.
+          # Using /api/users/getWinner because it's a small GET that already
+          # exists and doesn't require auth.
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 60 \
+            https://big-win-backend.onrender.com/api/users/getWinner)
+          echo "Response: $STATUS"
+          # Don't fail the workflow on cold-start hiccups
+          exit 0

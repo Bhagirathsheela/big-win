@@ -2,15 +2,29 @@ name: Run Daily Lottery
 
 on:
   schedule:
-    - cron: '30 0 * * *'  # 6:00 AM IST = 00:30 UTC
-  workflow_dispatch:
+    # 6:00 AM IST = 00:30 UTC.
+    # Want twice a day? Add another line: "30 6 * * *"  (= 12:00 noon IST)
+    # Want every 4 hours? Use:           "30 */4 * * *"
+    - cron: "30 0 * * *"
+  workflow_dispatch:  # lets you trigger a draw manually from the Actions tab
 
 jobs:
   run-lottery:
     runs-on: ubuntu-latest
+    timeout-minutes: 3
     steps:
-      - name: Call Lottery API
+      - name: Trigger lottery round
         env:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
-          curl -s -H "Authorization: Bearer $CRON_SECRET" https://big-win-backend.onrender.com/api/lottery/run
+          if [ -z "$CRON_SECRET" ]; then
+            echo "::error::CRON_SECRET is empty — add it under Settings → Secrets → Actions"
+            exit 1
+          fi
+          echo "Calling lottery endpoint..."
+          RESPONSE=$(curl -s -w "\nHTTP %{http_code}" \
+            -X POST \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            --max-time 120 \
+            https://big-win-backend.onrender.com/api/lottery/run)
+          echo "$RESPONSE"
