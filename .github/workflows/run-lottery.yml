@@ -11,8 +11,24 @@ on:
 jobs:
   run-lottery:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 6
     steps:
+      # Render Free spins down after 15 min. Cold start = ~50s. We warm it up
+      # first with a cheap GET so the actual lottery call doesn't time out.
+      - name: Warm up Render (wake from sleep)
+        run: |
+          echo "Waking Render service..."
+          for i in 1 2 3 4 5; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 90 \
+              https://big-win-backend.onrender.com/api/users/getWinner || echo "timeout")
+            echo "Attempt $i → HTTP $STATUS"
+            if [ "$STATUS" = "200" ] || [ "$STATUS" = "201" ] || [ "$STATUS" = "404" ]; then
+              echo "✅ Render is awake."
+              break
+            fi
+            sleep 5
+          done
+
       - name: Trigger lottery round
         env:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
@@ -22,9 +38,20 @@ jobs:
             exit 1
           fi
           echo "Calling lottery endpoint..."
-          RESPONSE=$(curl -s -w "\nHTTP %{http_code}" \
+          # 240s max — Render is warm by now so should be fast, but allow time
+          # for emails to winners (Gmail SMTP can be slow under load).
+          RESPONSE=$(curl -sS -w "\nHTTP %{http_code}\n" \
             -X POST \
             -H "Authorization: Bearer $CRON_SECRET" \
-            --max-time 120 \
+            -H "Content-Type: application/json" \
+            --max-time 240 \
+            --retry 1 \
+            --retry-delay 10 \
             https://big-win-backend.onrender.com/api/lottery/run)
           echo "$RESPONSE"
+          # Even if curl times out, the backend usually finished — verify via
+          # the public getWinner endpoint.
+          echo ""
+          echo "Verifying latest winner number..."
+          curl -s --max-time 30 https://big-win-backend.onrender.com/api/users/getWinner | head -c 500
+          echo ""
